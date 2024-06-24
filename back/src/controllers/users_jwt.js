@@ -2,7 +2,7 @@ const mysql = require('mysql2');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
-// Configuración de la base de datos (igual que antes)
+// Configuración de la base de datos
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -14,6 +14,7 @@ db.connect((err) => {
   console.log('UsersJWT-Conexión a la BD establecida');
 });
 
+//http://localhost:3000/usersJWT/login
 exports.login = async (req, res) => {
   const { nombre, password } = req.body;
   db.query('SELECT * FROM Usuarios WHERE nombre = ?', [nombre], async (err, result) => {
@@ -31,7 +32,7 @@ exports.login = async (req, res) => {
       return res.status(401).send('Credenciales inválidas');
     }
     // Generar JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '3h' });
     res.json({ token });
   });
 };
@@ -52,6 +53,7 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 // Rutas protegidas con autenticación JWT
+//http://localhost:3000/usersJWT/
 exports.getAllUsers = [authenticateJWT, (req, res) => {
   db.query('SELECT * FROM Usuarios', (err, result) => {
     if (err) {
@@ -61,6 +63,7 @@ exports.getAllUsers = [authenticateJWT, (req, res) => {
     res.json(result);
   });
 }];
+//http://localhost:3000/usersJWT/add
 exports.addUser = [ (req, res) => {
   let {nombre, password, tipo, idpersonal} = req.body;
   // Hashear la contraseña antes de guardarla (bcrypt)
@@ -83,21 +86,46 @@ exports.addUser = [ (req, res) => {
   });
 }];
 
+//http://localhost:3000/usersJWT/update
 exports.updateUser = [authenticateJWT, (req, res) => {
   const userId = req.params.id;
-  const {nombre, password, tipo} = req.body;
-  db.query('UPDATE Usuarios SET nombre = ?, password = ?, tipo = ? WHERE id = ?', [nombre, password, tipo, userId], (err, result) => {
+  const updatedUserName = req.body.nombre;
+  let updatePwd = req.body.password;
+  const updateTipo = req.body.tipo;
+
+  bcrypt.hash(updatePwd, 10, (err, hash) =>{
     if (err) {
-      res.status(500).send('Error al actualizar el elemento');
+      res.status(500).send('Error al hashear la contraseña');
       throw err;
     }
-    res.send('Elemento actualizado correctamente');
+    updatePwd = hash;
+
+    console.log(`Actualizando usuario con ID: ${userId}`);
+    console.log(`Nuevo nombre de usuario: ${updatedUserName}`);
+
+    db.query('UPDATE Usuarios SET nombre = ?, password = ?, tipo = ? WHERE id = ?', [updatedUserName, updatePwd, updateTipo, userId], (err, result) => {
+      if (err) {
+        console.error('Error al actualizar el nombre de usuario:', err);
+        res.status(500).send('Error al actualizar el nombre de usuario');
+        return;
+      }
+
+      console.log('Resultado de la actualización:', result);
+      
+      if (result.affectedRows === 0) {
+        res.status(404).send('Usuario no encontrado');
+        return;
+      }
+
+      res.send('Datos del usuario actualizados correctamente');
+    });
   });
 }];
 
+//http://localhost:3000/usersJWT/delete
 exports.deleteUser = [authenticateJWT, (req, res) => {
   const userId = req.params.id;
-  db.query('DELETE FROM Usuarios WHERE id = ?', userId, (err, result) => {
+  db.query('DELETE FROM Usuarios WHERE id = ?', [userId], (err, result) => {
     if (err) {
       res.status(500).send('Error al eliminar el elemento');
       throw err;

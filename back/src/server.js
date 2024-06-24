@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const usersJWTRoutes = require('./routes/users_jwt');
 const alumnosRoutes = require('./routes/alumnos');
+const profesorRoutes = require('./routes/profesor');
 require('dotenv').config();
 const app = express();
 const port = process.env.DB_PORT || 3000;
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 // Usar las rutas de los items
 app.use('/usersJWT', usersJWTRoutes);
 app.use('/alumnos', alumnosRoutes);
+app.use('/profesores', profesorRoutes);
 
 // Iniciar el servidor
 app.listen(port, () => {

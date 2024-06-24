@@ -6,10 +6,7 @@ const usersJWTController = require('../controllers/users_jwt');
 router.get('/', usersJWTController.getAllUsers);
 router.get('/login', usersJWTController.login);
 router.post('/add', usersJWTController.addUser);
-router.put('/update', usersJWTController.updateUser);
-router.delete('/delete', usersJWTController.deleteUser);
+router.put('/update/:id', usersJWTController.updateUser);
+router.delete('/delete/:id', usersJWTController.deleteUser);
 
 module.exports = router;
-
-
-

@@ -31,6 +31,7 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
+//http://localhost:3000/alumnos/addAlumno
 exports.addAlumno = [authenticateJWT, async (req, res) => {
   const {
     nombre, apellido, grado, grupo, noControl, turno, estado, curp, telefono, correo, nombre_tutor,
@@ -88,6 +89,7 @@ exports.addAlumno = [authenticateJWT, async (req, res) => {
   });
 }];
 
+//http://localhost:3000/alumnos/
 exports.imprimirTablaAlumnos = [authenticateJWT, (req, res) => {
   db.query(`SELECT * FROM Alumnos`, (err, result) => {
     if (err){
@@ -98,10 +100,11 @@ exports.imprimirTablaAlumnos = [authenticateJWT, (req, res) => {
   })
 }];
 
+//http://localhost:3000/alumnos/searchAlumnos
 exports.buscarAlumno = [authenticateJWT, (req, res) => {
-  const {parametroBusqueda} = req.body;
+  const {nombreBusqueda, apellidoBusqueda, noControlBusqueda} = req.body;
   db.query(`SELECT * FROM Alumnos WHERE nombre = ? or apellido = ?, or noControl = ?`,
-    [parametroBusqueda, parametroBusqueda, parametroBusqueda], (err, result) => {
+    [nombreBusqueda, apellidoBusqueda, noControlBusqueda], (err, result) => {
       if (err){
         res.status(500).send(`Error al buscar informacion de los Alumnos`);
         throw err;
@@ -111,3 +114,13 @@ exports.buscarAlumno = [authenticateJWT, (req, res) => {
   )
 }];
 
+exports.editAlumno = [authenticateJWT, (req, res) => {
+  
+  const {
+    nombre, apellido, grado, grupo, noControl, turno, estado, curp, telefono, correo, nombre_tutor,
+    telefono_tutor, nivelAcademico, escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso,
+    fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, 
+    nivelGeneral
+  } = req.body;
+  db.query(`UPDATE Alumnos`)
+}];
