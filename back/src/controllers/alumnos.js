@@ -100,6 +100,23 @@ exports.imprimirTablaAlumnos = [authenticateJWT, (req, res) => {
   })
 }];
 
+exports.imprimirDatosAlumno = [authenticateJWT, (req, res) => {
+  const idALumno = req.params.id;
+  db.query(`SELECT a.nombre, a.apellido, a.grado, a.grupo, a.noControl, a.turno, a.estado, d.curp, d.telefono, d.correo, d.nombre_tutor, d.telefono_tutor, d.nivelAcademico, e.escuelaProcedente, e.colegioAspirado, e.carreraAspirada, e.fechaInicioCurso, e.fechaExamenDiagnostico, e.nivelMatematico, e.nivelAnalitico, e.nivelLinguistico, e.nivelComprension, e.nivelGeneral
+    FROM Alumnos a
+    INNER JOIN DatosAdicionalesAlumno d ON a.id = d.id_alumnos
+    INNER JOIN DatosExamenPreUni e ON a.id = e.id_alumnado
+    WHERE a.id = ?;`,
+    [idALumno], (err, result) => {
+      if (err){
+        res.status(500).send(`Error al cargar la información del alumno`);
+        throw err;
+      }
+      res.json(result);
+    }
+  )
+}];
+
 //http://localhost:3000/alumnos/searchAlumnos
 exports.buscarAlumno = [authenticateJWT, (req, res) => {
   const {nombreBusqueda, apellidoBusqueda, noControlBusqueda} = req.body;
