@@ -181,3 +181,17 @@ exports.editAlumno = [authenticateJWT, (req, res) => {
     });
   });
 }];
+
+exports.bajaAlumno = [authenticateJWT, (req, res) => {
+  const idALumno = req.params.id;
+  db.query(`UPDATE Alumnos SET estado = 'Dado de baja' WHERE id = ?;`, [idALumno],
+    (err, result) => {
+      if (err) {
+        return db.rollback(() => {
+          res.status(500).send('Error al dar de baja al alumno');
+        });
+      }
+      res.status(201).send('Alumno dado de baja')
+    }
+  );
+}];

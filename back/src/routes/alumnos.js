@@ -7,5 +7,6 @@ router.get('/:id', alumnoController.imprimirDatosAlumno);
 router.post('/addAlumno', alumnoController.addAlumno);
 router.get('/searchAlumnos', alumnoController.buscarAlumno); //no funcional aún
 router.put('/update/:id', alumnoController.editAlumno);
+router.put('/downAlumno/:id', alumnoController.bajaAlumno);
 
 module.exports = router;
