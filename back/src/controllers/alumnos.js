@@ -114,13 +114,53 @@ exports.buscarAlumno = [authenticateJWT, (req, res) => {
   )
 }];
 
+//http://localhost:3000/alumnos/update/:id
 exports.editAlumno = [authenticateJWT, (req, res) => {
-  
+  const idALumno = req.params.id;
   const {
     nombre, apellido, grado, grupo, noControl, turno, estado, curp, telefono, correo, nombre_tutor,
     telefono_tutor, nivelAcademico, escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso,
     fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, 
     nivelGeneral
   } = req.body;
-  db.query(`UPDATE Alumnos`)
+  
+  db.query(`UPDATE Alumnos SET nombre = ?, apellido = ?, grado = ?, grupo = ?, noControl = ?, turno = ?, estado = ? WHERE id = ?;`,
+    [nombre, apellido, grado, grupo, noControl, turno, estado, idALumno],
+    (err, result) => {
+      if (err) {
+        return db.rollback(() => {
+          console.error('Error al insertar datos principales del alumno:', err);
+          res.status(500).send('Error al insertar datos principales del alumno');
+        });
+      }
+      db.query(`UPDATE DatosAdicionalesAlumno SET curp = ?, telefono = ?, correo = ?, nombre_tutor = ?, telefono_tutor = ?, nivelAcademico = ? WHERE id_alumnos = ?;`,
+        [curp, telefono, correo, nombre_tutor, telefono_tutor, nivelAcademico, idALumno],
+        (err, result) => {
+          if (err) {
+            return db.rollback(() => {
+              console.error('Error al insertar datos secundarios del alumno:', err);
+              res.status(500).send('Error al insertar datos secundarios del alumno');
+            });
+          }
+          db.query(`UPDATE DatosExamenPreUni SET escuelaProcedente = ?, colegioAspirado = ?, carreraAspirada = ?, fechaInicioCurso = ?, fechaExamenDiagnostico = ?, nivelMatematico = ?, nivelAnalitico = ?, nivelLinguistico = ?, nivelComprension = ?, nivelGeneral = ? WHERE id_alumnado = ?;`,
+            [escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso, fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral, idALumno],
+            (err, result) => {
+              if (err) {
+                return db.rollback(() => {
+                  console.error('Error en la insercion de datos del examen del alumno:', err);
+                  res.status(500).send('Error al insertar datos del examen del alumno');
+                })
+              }
+              db.commit((err) => {
+                if (err) {
+                  return db.rollback(() => {
+                    console.error('Error al hacer commit de la transacción:', err);
+                    res.status(500).send('Error al hacer commit de la transacción');
+                });
+              }
+              res.status(201).send('Datos del alumno agregados correctamente');
+          });
+        });
+    });
+  });
 }];
