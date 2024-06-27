@@ -127,9 +127,9 @@ exports.deleteUser = [authenticateJWT, (req, res) => {
   const userId = req.params.id;
   db.query('DELETE FROM Usuarios WHERE id = ?', [userId], (err, result) => {
     if (err) {
-      res.status(500).send('Error al eliminar el elemento');
+      res.status(500).send('Error al eliminar el usuario');
       throw err;
     }
-    res.send('Elemento eliminado correctamente');
+    res.send('Usuario eliminado correctamente');
   });
 }];

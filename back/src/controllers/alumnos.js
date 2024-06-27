@@ -119,9 +119,9 @@ exports.imprimirDatosAlumno = [authenticateJWT, (req, res) => {
 
 //http://localhost:3000/alumnos/searchAlumnos
 exports.buscarAlumno = [authenticateJWT, (req, res) => {
-  const {nombreBusqueda, apellidoBusqueda, noControlBusqueda} = req.body;
+  const objetoBusqueda = req.body;
   db.query(`SELECT * FROM Alumnos WHERE nombre = ? or apellido = ?, or noControl = ?`,
-    [nombreBusqueda, apellidoBusqueda, noControlBusqueda], (err, result) => {
+    [objetoBusqueda], (err, result) => {
       if (err){
         res.status(500).send(`Error al buscar informacion de los Alumnos`);
         throw err;
@@ -182,6 +182,7 @@ exports.editAlumno = [authenticateJWT, (req, res) => {
   });
 }];
 
+//http://localhost:3000/alumnos/downAlumno/:id
 exports.bajaAlumno = [authenticateJWT, (req, res) => {
   const idALumno = req.params.id;
   db.query(`UPDATE Alumnos SET estado = 'Dado de baja' WHERE id = ?;`, [idALumno],
