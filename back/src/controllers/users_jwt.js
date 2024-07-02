@@ -54,7 +54,7 @@ const authenticateJWT = (req, res, next) => {
 };
 // Rutas protegidas con autenticación JWT
 //http://localhost:3000/usersJWT/
-exports.getAllUsers = [authenticateJWT, (req, res) => {
+exports.getAllUsers = [/*authenticateJWT,*/ (req, res) => {
   db.query('SELECT * FROM Usuarios', (err, result) => {
     if (err) {
       res.status(500).send('Error al obtener los usuarios');
@@ -86,8 +86,19 @@ exports.addUser = [ (req, res) => {
   });
 }];
 
+exports.selectionEmploye = [ (req, res) => {
+  db.query(`SELECT nombre, apellidos, id FROM Personal;`,
+    (err, result) => {
+      if (err) {
+        res.status(500).send('Error al obtener los usuarios');
+        throw err;
+      }
+      res.json(result);
+    });
+}];
+
 //http://localhost:3000/usersJWT/update
-exports.updateUser = [authenticateJWT, (req, res) => {
+exports.updateUser = [/*authenticateJWT,*/ (req, res) => {
   const userId = req.params.id;
   const updatedUserName = req.body.nombre;
   let updatePwd = req.body.password;
@@ -123,7 +134,7 @@ exports.updateUser = [authenticateJWT, (req, res) => {
 }];
 
 //http://localhost:3000/usersJWT/delete
-exports.deleteUser = [authenticateJWT, (req, res) => {
+exports.deleteUser = [/*authenticateJWT,*/ (req, res) => {
   const userId = req.params.id;
   db.query('DELETE FROM Usuarios WHERE id = ?', [userId], (err, result) => {
     if (err) {

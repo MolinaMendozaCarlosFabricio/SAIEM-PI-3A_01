@@ -7,6 +7,6 @@ router.get('/view',pagoEControllers.getAllPagoE); //FUNCIONAL
 router.post('/pagoPro', pagoEControllers.addPagoProfesor); //FUNCIONAL
 router.post('/pagoPer', pagoEControllers.addPagoPersonal); //FUNCIONAL
 
-//faltaria filtrar y buscar
+//faltaria filtrar, buscar y poner como "pagado"
 
 module.exports = router;
