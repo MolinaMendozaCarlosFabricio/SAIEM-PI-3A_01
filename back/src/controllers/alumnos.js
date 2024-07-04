@@ -133,14 +133,14 @@ exports.buscarAlumno = [/*authenticateJWT,*/ (req, res) => {
 exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
   const idALumno = req.params.id;
   const {
-    nombre, apellido, grado, grupo, noControl, turno, estado, curp, telefono, correo, nombre_tutor,
-    telefono_tutor, nivelAcademico, escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso,
-    fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, 
-    nivelGeneral
+    nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado, curp, telefono, correo, 
+    nombre_tutor, apellido_p_tutor, apellido_m_tutor, telefono_tutor, nivelAcademico, escuelaProcedente, 
+    colegioAspirado, carreraAspirada, fechaInicioCurso, fechaExamenDiagnostico, nivelMatematico, 
+    nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral
   } = req.body;
   
-  db.query(`UPDATE Alumnos SET nombre = ?, apellido = ?, grado = ?, grupo = ?, noControl = ?, turno = ?, estado = ? WHERE id = ?;`,
-    [nombre, apellido, grado, grupo, noControl, turno, estado, idALumno],
+  db.query(`UPDATE Alumnos SET nombre = ?, apellido_p = ?, apellido_m = ?, grado = ?, grupo = ?, id_turno = ?, noControl = ?, id_estatus = ? WHERE id = ?;`,
+    [nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado, idALumno],
     (err, result) => {
       if (err) {
         return db.rollback(() => {
@@ -148,8 +148,8 @@ exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
           res.status(500).send('Error al insertar datos principales del alumno');
         });
       }
-      db.query(`UPDATE DatosAdicionalesAlumno SET curp = ?, telefono = ?, correo = ?, nombre_tutor = ?, telefono_tutor = ?, nivelAcademico = ? WHERE id_alumnos = ?;`,
-        [curp, telefono, correo, nombre_tutor, telefono_tutor, nivelAcademico, idALumno],
+      db.query(`UPDATE DatosAdicionalesAlumno SET curp = ?, telefono = ?, correo = ?, nombre_tutor = ?, apellidoP_tutor = ?, apellidoM_tutor = ?, telefono_tutor = ?, nivelAcademico = ? WHERE id_alumnos = ?;`,
+        [curp, telefono, correo, nombre_tutor, apellido_p_tutor, apellido_m_tutor, telefono_tutor, nivelAcademico, idALumno],
         (err, result) => {
           if (err) {
             return db.rollback(() => {
