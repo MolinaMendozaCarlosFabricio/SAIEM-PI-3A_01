@@ -31,7 +31,7 @@ const db = mysql.createConnection({
     }
   };
   
-  exports.addProfesor = [authenticateJWT,(req, res) => {
+  exports.addProfesor = [/*authenticateJWT ,*/ (req, res) => {
     const {nombre, apellido, telefono, correo, curp, especialidad, sueldoPorHora, estado} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
@@ -45,7 +45,7 @@ const db = mysql.createConnection({
     });
   }];
   
-  exports.updateProfesor = [authenticateJWT,(req, res) => {
+  exports.updateProfesor = [/*authenticateJWT,*/(req, res) => {
     const profesorId = req.params.id;
     const {nombre, apellido, telefono, correo, curp, especialidad, sueldoPorHora, estado} = req.body;
   
@@ -64,7 +64,14 @@ const db = mysql.createConnection({
       }
     );
   }];
+
+  exports.addSubject = [ (req, res) => {
+    const {nombre} = req.body;
+    db.query(``
+    );
+  }];
   
+  /*
   exports.deleteProfesor = [authenticateJWT, (req, res) => {
     const ProfesorId = req.params.id;
     db.query('DELETE FROM Profesor WHERE id = ?', [ProfesorId], (err, result) => {
@@ -75,6 +82,9 @@ const db = mysql.createConnection({
       res.send('Profesor eliminado correctamente');
     });
   }];
+  */
+
+
 
   exports.getAllProfesores = [authenticateJWT, (req,res) => {
     db.query('SELECT * FROM Profesor', (err, result) => {

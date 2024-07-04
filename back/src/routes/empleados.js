@@ -12,6 +12,6 @@ router.put('/cancelPersonal/:id', empleadosControllers.cancelPersonal);
 router.get('/viewProfesor',empleadosControllers.getAllProfesores); //FUNCIONAL
 router.post('/addProfesor', empleadosControllers.addProfesor); //FUNCIONAL
 router.put('/updateProfesor/:id', empleadosControllers.updateProfesor); //FUNCIONAL
-router.delete('/deleteProfesor/:id', empleadosControllers.deleteProfesor); //NO CORRESPONDE A LO NECESARIO
+
 
 module.exports = router;

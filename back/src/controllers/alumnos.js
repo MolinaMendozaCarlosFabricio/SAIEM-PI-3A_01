@@ -32,18 +32,18 @@ const authenticateJWT = (req, res, next) => {
 };
 
 //http://localhost:3000/alumnos/addAlumno
-exports.addAlumno = [authenticateJWT, async (req, res) => {
+exports.addAlumno = [/*authenticateJWT,*/ async (req, res) => {
   const {
-    nombre, apellido, grado, grupo, noControl, turno, estado, curp, telefono, correo, nombre_tutor,
-    telefono_tutor, nivelAcademico, escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso,
-    fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, 
-    nivelGeneral
+    nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado, curp, telefono, correo, 
+    nombre_tutor, apellido_p_tutor, apellido_m_tutor, telefono_tutor, nivelAcademico, escuelaProcedente, 
+    colegioAspirado, carreraAspirada, fechaInicioCurso, fechaExamenDiagnostico, nivelMatematico, 
+    nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral
   } = req.body;
 
 
   db.query(
-    `INSERT INTO Alumnos (nombre, apellido, grado, grupo, noControl, turno, estado) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [nombre, apellido, grado, grupo, noControl, turno, estado],
+    `INSERT INTO Alumnos (nombre, apellido_p, apellido_m, grado, grupo, id_turno, noControl, id_estatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado],
     (err, result) => {
       if (err) {
         return db.rollback(() => {
@@ -55,8 +55,8 @@ exports.addAlumno = [authenticateJWT, async (req, res) => {
       const idQuery = result.insertId;
 
       db.query(
-        `INSERT INTO DatosAdicionalesAlumno (curp, telefono, correo, nombre_tutor, telefono_tutor, nivelAcademico, id_alumnos) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [curp, telefono, correo, nombre_tutor, telefono_tutor, nivelAcademico, idQuery],
+        `INSERT INTO DatosAdicionalesAlumno (curp, telefono, correo, nombre_tutor, apellidoP_tutor, apellidoM_tutor, telefono_tutor, nivelAcademico, id_alumnos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [curp, telefono, correo, nombre_tutor, apellido_p_tutor, apellido_m_tutor, telefono_tutor, nivelAcademico, idQuery],
         (err, result) => {
           if (err) {
             return db.rollback(() => {
@@ -90,7 +90,7 @@ exports.addAlumno = [authenticateJWT, async (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/
-exports.imprimirTablaAlumnos = [authenticateJWT, (req, res) => {
+exports.imprimirTablaAlumnos = [/*authenticateJWT,*/ (req, res) => {
   db.query(`SELECT * FROM Alumnos`, (err, result) => {
     if (err){
       res.status(500).send('Error al obtener la informacion de los Alumnos');
@@ -100,13 +100,11 @@ exports.imprimirTablaAlumnos = [authenticateJWT, (req, res) => {
   })
 }];
 
-exports.imprimirDatosAlumno = [authenticateJWT, (req, res) => {
+//http://localhost:3000/alumnos/
+exports.imprimirDatosAlumno = [/*authenticateJWT,*/ (req, res) => {
   const idALumno = req.params.id;
-  db.query(`SELECT a.nombre, a.apellido, a.grado, a.grupo, a.noControl, a.turno, a.estado, d.curp, d.telefono, d.correo, d.nombre_tutor, d.telefono_tutor, d.nivelAcademico, e.escuelaProcedente, e.colegioAspirado, e.carreraAspirada, e.fechaInicioCurso, e.fechaExamenDiagnostico, e.nivelMatematico, e.nivelAnalitico, e.nivelLinguistico, e.nivelComprension, e.nivelGeneral
-    FROM Alumnos a
-    INNER JOIN DatosAdicionalesAlumno d ON a.id = d.id_alumnos
-    INNER JOIN DatosExamenPreUni e ON a.id = e.id_alumnado
-    WHERE a.id = ?;`,
+  db.query(`SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus, DatosAdicionalesAlumno.curp, DatosAdicionalesAlumno.telefono, DatosAdicionalesAlumno.correo, DatosAdicionalesAlumno.nombre_tutor, DatosAdicionalesAlumno.apellidoP_tutor, DatosAdicionalesAlumno.apellidoM_tutor, DatosAdicionalesAlumno.telefono_tutor, DatosAdicionalesAlumno.nivelAcademico, DatosExamenPreUni.escuelaProcedente, DatosExamenPreUni.colegioAspirado, DatosExamenPreUni.carreraAspirada, DatosExamenPreUni.fechaInicioCurso, DatosExamenPreUni.fechaExamenDiagnostico, DatosExamenPreUni.nivelMatematico, DatosExamenPreUni.nivelAnalitico, DatosExamenPreUni.nivelLinguistico, DatosExamenPreUni.nivelComprension, DatosExamenPreUni.nivelGeneral
+    FROM Alumnos, Turno, EstatusPersona, DatosAdicionalesAlumno, DatosExamenPreUni WHERE Alumnos.id_turno = Turno.id and Alumnos.id_estatus = EstatusPersona.id and Alumnos.id = DatosAdicionalesAlumno.id_alumnos and Alumnos.id = DatosExamenPreUni.id_alumnado and Alumnos.id = ?;`,
     [idALumno], (err, result) => {
       if (err){
         res.status(500).send(`Error al cargar la información del alumno`);
@@ -118,7 +116,7 @@ exports.imprimirDatosAlumno = [authenticateJWT, (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/searchAlumnos
-exports.buscarAlumno = [authenticateJWT, (req, res) => {
+exports.buscarAlumno = [/*authenticateJWT,*/ (req, res) => {
   const objetoBusqueda = req.body;
   db.query(`SELECT * FROM Alumnos WHERE nombre = ? or apellido = ?, or noControl = ?`,
     [objetoBusqueda], (err, result) => {
@@ -132,7 +130,7 @@ exports.buscarAlumno = [authenticateJWT, (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/update/:id
-exports.editAlumno = [authenticateJWT, (req, res) => {
+exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
   const idALumno = req.params.id;
   const {
     nombre, apellido, grado, grupo, noControl, turno, estado, curp, telefono, correo, nombre_tutor,
@@ -183,7 +181,7 @@ exports.editAlumno = [authenticateJWT, (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/downAlumno/:id
-exports.bajaAlumno = [authenticateJWT, (req, res) => {
+exports.bajaAlumno = [/*authenticateJWT,*/ (req, res) => {
   const idALumno = req.params.id;
   db.query(`UPDATE Alumnos SET estado = 'Dado de baja' WHERE id = ?;`, [idALumno],
     (err, result) => {
