@@ -121,7 +121,7 @@ exports.imprimirDatosAlumno = [/*authenticateJWT,*/ (req, res) => {
 
 //http://localhost:3000/alumnos/searchAlumnos
 exports.mostrarAlumnos = [/*authenticateJWT,*/ (req, res) => {
-  const {apellido_p_busqueda, apellido_m_busqueda, noControlBusqueda, gradoFiltro, grupoFiltro, estatusFiltro} = req.body;
+  const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, noControlBusqueda, gradoFiltro, grupoFiltro, estatusFiltro} = req.body;
   let consulta = `SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus 
     FROM Alumnos
     JOIN Turno ON Alumnos.id_turno = Turno.id
@@ -129,47 +129,35 @@ exports.mostrarAlumnos = [/*authenticateJWT,*/ (req, res) => {
     WHERE 1 = 1`;
   let parametros = [];
 
-  console.log('Consulta inicial:', consulta);
-
+  if(nombre_busqueda){
+    consulta += ` AND Alumnos.nombre LIKE ?`;
+    parametros.push(nombre_busqueda+'%');
+  }
   if (apellido_p_busqueda){
     consulta += ` AND Alumnos.apellido_p LIKE ?`;
     parametros.push(apellido_p_busqueda+'%');
-    console.log('Consulta después del encadenado:', consulta);
-    console.log('Parámetros:', parametros);
   }
   if(apellido_m_busqueda){
     consulta += ` AND Alumnos.apellido_m LIKE ?`;
     parametros.push(apellido_m_busqueda+'%');
-    console.log('Consulta después del encadenado:', consulta);
-    console.log('Parámetros:', parametros);
   }
   if(noControlBusqueda){
     consulta += ` AND Alumnos.noControl = ?`;
     parametros.push(noControlBusqueda);
-    console.log('Consulta después del encadenado:', consulta);
-    console.log('Parámetros:', parametros);
   }
   if(gradoFiltro){
     consulta += ` AND Alumnos.grado = ?`;
     parametros.push(gradoFiltro);
-    console.log('Consulta después del encadenado:', consulta);
-    console.log('Parámetros:', parametros);
   }
   if(grupoFiltro){
     consulta += ` AND Alumnos.grupo LIKE ?`;
     parametros.push('%'+grupoFiltro+'%');
-    console.log('Consulta después del encadenado:', consulta);
-    console.log('Parámetros:', parametros);
   }
   if(estatusFiltro){
     consulta += ` AND Alumnos.id_estatus = ?`;
     parametros.push(estatusFiltro);
-    console.log('Consulta después del encadenado:', consulta);
-    console.log('Parámetros:', parametros);
-  }
 
-  console.log('Consulta SQL: ', consulta);
-  console.log('Parámetros:', parametros);
+  }
   
   db.query(consulta, parametros, (err, result) => {
       if (err){
