@@ -91,7 +91,11 @@ exports.addAlumno = [/*authenticateJWT,*/ async (req, res) => {
 
 //http://localhost:3000/alumnos/
 exports.imprimirTablaAlumnos = [/*authenticateJWT,*/ (req, res) => {
-  db.query(`SELECT * FROM Alumnos`, (err, result) => {
+  db.query(`SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus 
+    FROM Alumnos
+    JOIN Turno ON Alumnos.id_turno = Turno.id
+    JOIN EstatusPersona ON Alumnos.id_estatus = EstatusPersona.id`, 
+    (err, result) => {
     if (err){
       res.status(500).send('Error al obtener la informacion de los Alumnos');
       throw err;
@@ -100,7 +104,7 @@ exports.imprimirTablaAlumnos = [/*authenticateJWT,*/ (req, res) => {
   })
 }];
 
-//http://localhost:3000/alumnos/
+//http://localhost:3000/alumnos/:id
 exports.imprimirDatosAlumno = [/*authenticateJWT,*/ (req, res) => {
   const idALumno = req.params.id;
   db.query(`SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus, DatosAdicionalesAlumno.curp, DatosAdicionalesAlumno.telefono, DatosAdicionalesAlumno.correo, DatosAdicionalesAlumno.nombre_tutor, DatosAdicionalesAlumno.apellidoP_tutor, DatosAdicionalesAlumno.apellidoM_tutor, DatosAdicionalesAlumno.telefono_tutor, DatosAdicionalesAlumno.nivelAcademico, DatosExamenPreUni.escuelaProcedente, DatosExamenPreUni.colegioAspirado, DatosExamenPreUni.carreraAspirada, DatosExamenPreUni.fechaInicioCurso, DatosExamenPreUni.fechaExamenDiagnostico, DatosExamenPreUni.nivelMatematico, DatosExamenPreUni.nivelAnalitico, DatosExamenPreUni.nivelLinguistico, DatosExamenPreUni.nivelComprension, DatosExamenPreUni.nivelGeneral
@@ -116,10 +120,58 @@ exports.imprimirDatosAlumno = [/*authenticateJWT,*/ (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/searchAlumnos
-exports.buscarAlumno = [/*authenticateJWT,*/ (req, res) => {
-  const objetoBusqueda = req.body;
-  db.query(`SELECT * FROM Alumnos WHERE nombre = ? or apellido = ?, or noControl = ?`,
-    [objetoBusqueda], (err, result) => {
+exports.mostrarAlumnos = [/*authenticateJWT,*/ (req, res) => {
+  const {apellido_p_busqueda, apellido_m_busqueda, noControlBusqueda, gradoFiltro, grupoFiltro, estatusFiltro} = req.body;
+  let consulta = `SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus 
+    FROM Alumnos
+    JOIN Turno ON Alumnos.id_turno = Turno.id
+    JOIN EstatusPersona ON Alumnos.id_estatus = EstatusPersona.id
+    WHERE 1 = 1`;
+  let parametros = [];
+
+  console.log('Consulta inicial:', consulta);
+
+  if (apellido_p_busqueda){
+    consulta += ` AND Alumnos.apellido_p LIKE ?`;
+    parametros.push(apellido_p_busqueda+'%');
+    console.log('Consulta después del encadenado:', consulta);
+    console.log('Parámetros:', parametros);
+  }
+  if(apellido_m_busqueda){
+    consulta += ` AND Alumnos.apellido_m LIKE ?`;
+    parametros.push(apellido_m_busqueda+'%');
+    console.log('Consulta después del encadenado:', consulta);
+    console.log('Parámetros:', parametros);
+  }
+  if(noControlBusqueda){
+    consulta += ` AND Alumnos.noControl = ?`;
+    parametros.push(noControlBusqueda);
+    console.log('Consulta después del encadenado:', consulta);
+    console.log('Parámetros:', parametros);
+  }
+  if(gradoFiltro){
+    consulta += ` AND Alumnos.grado = ?`;
+    parametros.push(gradoFiltro);
+    console.log('Consulta después del encadenado:', consulta);
+    console.log('Parámetros:', parametros);
+  }
+  if(grupoFiltro){
+    consulta += ` AND Alumnos.grupo LIKE ?`;
+    parametros.push('%'+grupoFiltro+'%');
+    console.log('Consulta después del encadenado:', consulta);
+    console.log('Parámetros:', parametros);
+  }
+  if(estatusFiltro){
+    consulta += ` AND Alumnos.id_estatus = ?`;
+    parametros.push(estatusFiltro);
+    console.log('Consulta después del encadenado:', consulta);
+    console.log('Parámetros:', parametros);
+  }
+
+  console.log('Consulta SQL: ', consulta);
+  console.log('Parámetros:', parametros);
+  
+  db.query(consulta, parametros, (err, result) => {
       if (err){
         res.status(500).send(`Error al buscar informacion de los Alumnos`);
         throw err;
@@ -127,6 +179,7 @@ exports.buscarAlumno = [/*authenticateJWT,*/ (req, res) => {
       res.json(result);
     }
   )
+  
 }];
 
 //http://localhost:3000/alumnos/update/:id
@@ -183,7 +236,7 @@ exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
 //http://localhost:3000/alumnos/downAlumno/:id
 exports.bajaAlumno = [/*authenticateJWT,*/ (req, res) => {
   const idALumno = req.params.id;
-  db.query(`UPDATE Alumnos SET estado = 'Dado de baja' WHERE id = ?;`, [idALumno],
+  db.query(`UPDATE Alumnos SET id_estatus = 3 WHERE id = ?;`, [idALumno],
     (err, result) => {
       if (err) {
         return db.rollback(() => {
