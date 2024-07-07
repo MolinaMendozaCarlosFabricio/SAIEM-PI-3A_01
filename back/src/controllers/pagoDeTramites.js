@@ -32,11 +32,10 @@ const db = mysql.createConnection({
   };
   
   //http://localhost:3000/tramites/add
-  exports.addTramites = [authenticateJWT,(req, res) => {
+  exports.addTramites = [/*authenticateJWT,*/ (req, res) => {
     const {folio, concepto, monto, fechaDeCorte, id_alumno} = req.body;
   
-    // Insertar el nuevo profesor en la base de datos 
-    db.query(`INSERT INTO PagoTramites (folio, concepto, monto, fechaDeCorte, estado, id_alumno) VALUES (?,?,?,?,'Sin pagar',?)`,
+    db.query(`INSERT INTO PagoTramites (folio, concepto, monto, fechaDeCorte, id_estatus, id_alumno) VALUES (?,?,?,?,'1',?)`,
       [folio, concepto, monto, fechaDeCorte, id_alumno], (err, result) => {
       if (err) {
         res.status(500).send('Error al agregar el Pago de trámite');
@@ -46,7 +45,7 @@ const db = mysql.createConnection({
     });
   }];
   
-  exports.getAllTramites = [authenticateJWT, (req,res) => {
+  exports.getAllTramites = [/*authenticateJWT,*/ (req,res) => {
     db.query('SELECT * FROM PagoTramites', (err, result) => {
       if (err) {
         res.status(500).send('Error al mostrar todos los trámites realizados');
@@ -55,3 +54,78 @@ const db = mysql.createConnection({
       res.json(result);
     });
   }];
+
+  exports.changeTramites = [/*authenticateJWT,*/ (req,res) => {
+    const tramiteId = req.params.id;
+
+    db.query('UPDATE PagoTramites SET id_estatus = 3 WHERE id = ?',[tramiteId], (err,result) => {
+      if (err) {
+        console.error('ERROR en cambiar a pagado');
+        return;
+      }
+      res.send('Actualizado a "pagado" correctamente');
+    })
+  }];
+
+  exports.change2Tramites = [/*authenticateJWT,*/ (req,res) => {
+    const tramiteIdN = req.params.id;
+
+    db.query('UPDATE PagoTramites SET id_estatus = 2 WHERE id = ?',[tramiteIdN], (err,result) => {
+      if (err) {
+        console.error('ERROR en cambiar a Próximo a pagar');
+        return;
+      }
+      res.send('Actualizado a "proximo" correctamente');
+    })
+  }];
+
+  exports.change4Tramites = [/*authenticateJWT,*/ (req,res) => {
+    const tramiteIdA = req.params.id;
+
+    db.query('UPDATE PagoTramites SET id_estatus = 4 WHERE id = ?',[tramiteIdA], (err,result) => {
+      if (err) {
+        console.error('ERROR en cambiar a atrasado');
+        return;
+      }
+      res.send('Actualizado a "atrasado" correctamente');
+    })
+  }];
+
+  exports.buscarORfiltrarTramites = [/*authenticateJWT,*/ (req, res) => {
+    const {folio_busqueda, concepto_busqueda,  fechaDeCorteFiltro, estatusFiltro} = req.body;
+    let consulta = `SELECT PagoTramites.id, PagoTramites.folio, PagoTramites.concepto, PagoTramites.monto, PagoTramites.fechaDeCorte, EstatusPago.tipo_estatus, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo
+      FROM PagoTramites
+      JOIN EstatusPago ON PagoTramites.id_estatus = EstatusPago.id
+      JOIN Alumnos ON PagoTramites.id_alumno = Alumnos.id
+      WHERE 1 = 1`;
+    let parametros = [];
+  
+    if(folio_busqueda){
+      consulta += ` AND PagoTramites.folio LIKE ?`;
+      parametros.push(folio_busqueda+'%');
+    }
+    if (concepto_busqueda){
+      consulta += ` AND PagoTramites.concepto LIKE ?`;
+      parametros.push(concepto_busqueda+'%');
+    }
+    if(fechaDeCorteFiltro){
+      consulta += ` AND PagoTramites.fechaDeCorte = ?`;
+      parametros.push(fechaDeCorteFiltro);
+    }
+    if(estatusFiltro){
+      consulta += ` AND PagoTramites.id_estatus = ?`;
+      parametros.push(estatusFiltro);
+  
+    }
+    
+    db.query(consulta, parametros, (err, result) => {
+        if (err){
+          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          throw err;
+        }
+        res.json(result);
+      }
+    )
+    
+  }];
+

@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const usersJWTRoutes = require('./routes/users_jwt');
 const alumnosRoutes = require('./routes/alumnos');
@@ -11,6 +12,7 @@ const app = express();
 const port = process.env.DB_PORT || 3000;
 
 // Middleware para analizar los cuerpos de las solicitudes
+app.use(cors());
 app.use(bodyParser.json());
 
 // Usar las rutas de los items
