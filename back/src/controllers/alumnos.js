@@ -40,52 +40,62 @@ exports.addAlumno = [/*authenticateJWT,*/ async (req, res) => {
     nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral
   } = req.body;
 
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error('Error al iniciar la transacción:', err);
+      return res.status(500).json({ error: 'Error al iniciar la transacción' });
+    }
 
-  db.query(
-    `INSERT INTO Alumnos (nombre, apellido_p, apellido_m, grado, grupo, id_turno, noControl, id_estatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado],
-    (err, result) => {
-      if (err) {
-        return db.rollback(() => {
-          console.error('Error al insertar datos principales del alumno:', err);
-          res.status(500).send('Error al insertar datos principales del alumno');
-        });
-      }
+    db.query(
+      `INSERT INTO Alumnos (nombre, apellido_p, apellido_m, grado, grupo, id_turno, noControl, id_estatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado],
+      (err, result) => {
+        if (err) {
+          return db.rollback(() => {
+            console.error('Error al insertar datos principales del alumno:', err);
+            res.status(500).json({ error: 'Error al insertar datos principales del alumno' });
+          });
+        }
 
-      const idQuery = result.insertId;
+        const idQuery = result.insertId;
 
-      db.query(
-        `INSERT INTO DatosAdicionalesAlumno (curp, telefono, correo, nombre_tutor, apellidoP_tutor, apellidoM_tutor, telefono_tutor, nivelAcademico, id_alumnos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [curp, telefono, correo, nombre_tutor, apellido_p_tutor, apellido_m_tutor, telefono_tutor, nivelAcademico, idQuery],
-        (err, result) => {
-          if (err) {
-            return db.rollback(() => {
-              console.error('Error al insertar datos adicionales del alumno:', err);
-              res.status(500).send('Error al insertar datos adicionales del alumno');
-            });
-          }
+        db.query(
+          `INSERT INTO DatosAdicionalesAlumno (curp, telefono, correo, nombre_tutor, apellidoP_tutor, apellidoM_tutor, telefono_tutor, nivelAcademico, id_alumnos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [curp, telefono, correo, nombre_tutor, apellido_p_tutor, apellido_m_tutor, telefono_tutor, nivelAcademico, idQuery],
+          (err, result) => {
+            if (err) {
+              return db.rollback(() => {
+                console.error('Error al insertar datos adicionales del alumno:', err);
+                res.status(500).json({ error: 'Error al insertar datos adicionales del alumno' });
+              });
+            }
 
-          db.query(`INSERT INTO DatosExamenPreUni (escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso, fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral, id_alumnado)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`, 
-            [escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso, fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral, idQuery],
-            (err, result) => {
-              if (err) {
-                return db.rollback(() => {
-                  console.error('Error en la insercion de datos del examen del alumno:', err);
-                  res.status(500).send('Error al insertar datos del examen del alumno');
-                })
-              }
-              db.commit((err) => {
+            db.query(`INSERT INTO DatosExamenPreUni (escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso, fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral, id_alumnado)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`, 
+              [escuelaProcedente, colegioAspirado, carreraAspirada, fechaInicioCurso, fechaExamenDiagnostico, nivelMatematico, nivelAnalitico, nivelLinguistico, nivelComprension, nivelGeneral, idQuery],
+              (err, result) => {
                 if (err) {
                   return db.rollback(() => {
-                    console.error('Error al hacer commit de la transacción:', err);
-                    res.status(500).send('Error al hacer commit de la transacción');
+                    console.error('Error en la insercion de datos del examen del alumno:', err);
+                    res.status(500).json({ error: 'Error al insertar datos del examen del alumno' });
+                  });
+                }
+
+                db.commit((err) => {
+                  if (err) {
+                    return db.rollback(() => {
+                      console.error('Error al hacer commit de la transacción:', err);
+                      res.status(500).json({ error: 'Error al hacer commit de la transacción' });
+                    });
+                  }
+                  res.status(201).json({ message: 'Datos del alumno agregados correctamente' });
                 });
               }
-              res.status(201).send('Datos del alumno agregados correctamente');
-            });
-          });
-        });
+            );
+          }
+        );
+      }
+    );
   });
 }];
 
