@@ -35,7 +35,7 @@ const db = mysql.createConnection({
   exports.addTramites = [/*authenticateJWT,*/ (req, res) => {
     const {folio, concepto, monto, fechaDeCorte, id_alumno} = req.body;
   
-    db.query(`INSERT INTO PagoTramites (folio, concepto, monto, fechaDeCorte, id_estatus, id_alumno) VALUES (?,?,?,?,'1',?)`,
+    db.query(`INSERT INTO PagoTramites (folio, concepto, monto, fechaDeCorte, id_estatus, id_alumno) VALUES (?,?,?,?,1,?)`,
       [folio, concepto, monto, fechaDeCorte, id_alumno], (err, result) => {
       if (err) {
         res.status(500).send('Error al agregar el Pago de trámite');
@@ -91,9 +91,10 @@ const db = mysql.createConnection({
     })
   }];
 
+  //probar los demás parametros para busqueda
   exports.buscarORfiltrarTramites = [/*authenticateJWT,*/ (req, res) => {
-    const {folio_busqueda, concepto_busqueda,  fechaDeCorteFiltro, estatusFiltro} = req.body;
-    let consulta = `SELECT PagoTramites.id, PagoTramites.folio, PagoTramites.concepto, PagoTramites.monto, PagoTramites.fechaDeCorte, EstatusPago.tipo_estatus, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo
+    const {folio_busqueda, concepto_busqueda,nombreBusqueda, apellido_p_busqueda, apellido_m_busqueda, fechaDeCorteFiltro, estatusFiltro, gradoFiltro, grupoFiltro} = req.body;
+    let consulta = `SELECT Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, PagoTramites.id, PagoTramites.folio, PagoTramites.concepto, PagoTramites.monto, PagoTramites.fechaDeCorte, EstatusPago.tipo_estatus 
       FROM PagoTramites
       JOIN EstatusPago ON PagoTramites.id_estatus = EstatusPago.id
       JOIN Alumnos ON PagoTramites.id_alumno = Alumnos.id
@@ -108,6 +109,18 @@ const db = mysql.createConnection({
       consulta += ` AND PagoTramites.concepto LIKE ?`;
       parametros.push(concepto_busqueda+'%');
     }
+    if (nombreBusqueda) {
+      consulta += ' AND Alumnos.nombre LIKE ?';
+      parametros.push(nombreBusqueda+'%');
+    }
+    if(apellido_p_busqueda) {
+      consulta += ' AND Alumnos.apellido_p LIKE ?';
+      parametros.push(apellido_p_busqueda+'%');
+    }
+    if(apellido_m_busqueda) {
+      consulta += ' AND Alumnos.apellido_m LIKE ?';
+      parametros.push(apellido_m_busqueda+'%');
+    }
     if(fechaDeCorteFiltro){
       consulta += ` AND PagoTramites.fechaDeCorte = ?`;
       parametros.push(fechaDeCorteFiltro);
@@ -115,7 +128,14 @@ const db = mysql.createConnection({
     if(estatusFiltro){
       consulta += ` AND PagoTramites.id_estatus = ?`;
       parametros.push(estatusFiltro);
-  
+    }
+    if(gradoFiltro) {
+      consulta += ' AND Alumnos.grado LIKE ?';
+      parametros.push(gradoFiltro+'%');
+    }
+    if(grupoFiltro) {
+      consulta += ' AND Alumnos.grupo LIKE ?';
+      parametros.push(grupoFiltro+'%');
     }
     
     db.query(consulta, parametros, (err, result) => {
@@ -128,4 +148,3 @@ const db = mysql.createConnection({
     )
     
   }];
-
