@@ -55,18 +55,18 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.changeTramites = [/*authenticateJWT,*/ (req,res) => {
+  exports.changeTramites = [/*authenticateJWT,*/ (req, res) => {
     const tramiteId = req.params.id;
-
-    db.query('UPDATE PagoTramites SET id_estatus = 3 WHERE id = ?',[tramiteId], (err,result) => {
+  
+    db.query('UPDATE PagoTramites SET id_estatus = 3 WHERE id = ?', [tramiteId], (err, result) => {
       if (err) {
-        console.error('ERROR en cambiar a pagado');
-        return;
+        console.error('ERROR en cambiar a pagado:', err);
+        return res.status(500).json({ error: 'Error al cambiar a pagado' });
       }
-      res.send('Actualizado a "pagado" correctamente');
-    })
+      res.json({ message: 'Actualizado a "pagado" correctamente' });
+    });
   }];
-
+  
   exports.change2Tramites = [/*authenticateJWT,*/ (req,res) => {
     const tramiteIdN = req.params.id;
 
