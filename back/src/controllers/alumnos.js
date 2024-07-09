@@ -152,8 +152,8 @@ exports.mostrarAlumnos = [/*authenticateJWT,*/ (req, res) => {
     parametros.push(apellido_m_busqueda+'%');
   }
   if(noControlBusqueda){
-    consulta += ` AND Alumnos.noControl = ?`;
-    parametros.push(noControlBusqueda);
+    consulta += ` AND Alumnos.noControl LIKE ?`;
+    parametros.push(noControlBusqueda + '%');
   }
   if(gradoFiltro){
     consulta += ` AND Alumnos.grado = ?`;

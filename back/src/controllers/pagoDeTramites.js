@@ -38,10 +38,10 @@ const db = mysql.createConnection({
     db.query(`INSERT INTO PagoTramites (folio, concepto, monto, fechaDeCorte, id_estatus, id_alumno) VALUES (?,?,?,?,1,?)`,
       [folio, concepto, monto, fechaDeCorte, id_alumno], (err, result) => {
       if (err) {
-        res.status(500).send('Error al agregar el Pago de trámite');
+        res.status(500).json({ error : "Error al agregar el Pago de trámite" });
         return; // Stop execution if there's an error inserting
       }
-      res.status(201).send('Pago de trámite agregado correctamente');
+      res.status(201).json({ message : "Pago de trámite agregado correctamente" });
     });
   }];
   
@@ -168,8 +168,8 @@ const db = mysql.createConnection({
       parametros.push(apellido_m_busqueda+'%');
     }
     if(noControl_busqueda){
-      consulta += ` AND Alumnos.noCOntrol = ?`;
-      parametros.push(noControl_busqueda);
+      consulta += ` AND Alumnos.noCOntrol LIKE ?`;
+      parametros.push(noControl_busqueda + '%');
     }
 
     db.query(consulta, parametros, (err, result) => {
