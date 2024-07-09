@@ -122,8 +122,8 @@ const db = mysql.createConnection({
       parametros.push(apellido_m_busqueda+'%');
     }
     if(fechaDeCorteFiltro){
-      consulta += ` AND PagoTramites.fechaDeCorte = ?`;
-      parametros.push(fechaDeCorteFiltro);
+      consulta += ` AND PagoTramites.fechaDeCorte LIKE ?`;
+      parametros.push(fechaDeCorteFiltro+'%');
     }
     if(estatusFiltro){
       consulta += ` AND PagoTramites.id_estatus = ?`;
