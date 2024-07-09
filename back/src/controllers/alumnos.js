@@ -196,7 +196,7 @@ exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
       if (err) {
         return db.rollback(() => {
           console.error('Error al insertar datos principales del alumno:', err);
-          res.status(500).send('Error al insertar datos principales del alumno');
+          res.status(500).json({ error: 'Error al insertar datos principales del alumno' });
         });
       }
       db.query(`UPDATE DatosAdicionalesAlumno SET curp = ?, telefono = ?, correo = ?, nombre_tutor = ?, apellidoP_tutor = ?, apellidoM_tutor = ?, telefono_tutor = ?, nivelAcademico = ? WHERE id_alumnos = ?;`,
@@ -205,7 +205,7 @@ exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
           if (err) {
             return db.rollback(() => {
               console.error('Error al insertar datos secundarios del alumno:', err);
-              res.status(500).send('Error al insertar datos secundarios del alumno');
+              res.status(500).json({ error: 'Error al insertar datos secundarios del alumno' });
             });
           }
           db.query(`UPDATE DatosExamenPreUni SET escuelaProcedente = ?, colegioAspirado = ?, carreraAspirada = ?, fechaInicioCurso = ?, fechaExamenDiagnostico = ?, nivelMatematico = ?, nivelAnalitico = ?, nivelLinguistico = ?, nivelComprension = ?, nivelGeneral = ? WHERE id_alumnado = ?;`,
@@ -214,21 +214,21 @@ exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
               if (err) {
                 return db.rollback(() => {
                   console.error('Error en la insercion de datos del examen del alumno:', err);
-                  res.status(500).send('Error al insertar datos del examen del alumno');
+                  res.status(500).json({ error: 'Error al insertar datos del examen del alumno' });
                 })
               }
               db.commit((err) => {
                 if (err) {
                   return db.rollback(() => {
                     console.error('Error al hacer commit de la transacción:', err);
-                    res.status(500).send('Error al hacer commit de la transacción');
-                });
-              }
-              res.status(201).send('Datos del alumno agregados correctamente');
-          });
+                    res.status(500).json({ error: 'Error al hacer commit de la transacción' });
+                  });
+                }
+                res.status(201).json({ message: 'Datos del alumno agregados correctamente' });
+              });
+            });
         });
-    });
-  });
+      });
 }];
 
 //http://localhost:3000/alumnos/downAlumno/:id
