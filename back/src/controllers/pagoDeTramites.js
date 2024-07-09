@@ -156,19 +156,19 @@ const db = mysql.createConnection({
     let parametros = [];
 
     if(nombre_busqueda){
-      consulta += `AND Alumnos.nombre LIKE ?`;
+      consulta += ` AND Alumnos.nombre LIKE ?`;
       parametros.push(nombre_busqueda+'%');
     }
     if(apellido_p_busqueda){
-      consulta += `AND Alumnos.apellido_p LIKE ?`;
-      parametros.push(apellido_m_busqueda+'%');
+      consulta += ` AND Alumnos.apellido_p LIKE ?`;
+      parametros.push(apellido_p_busqueda+'%');
     }
     if(apellido_m_busqueda){
-      consulta += `AND Alumnos.apellido_m LIKE ?`;
+      consulta += ` AND Alumnos.apellido_m LIKE ?`;
       parametros.push(apellido_m_busqueda+'%');
     }
     if(noControl_busqueda){
-      consulta += `AND Alumnos.noCOntrol = ?`;
+      consulta += ` AND Alumnos.noCOntrol = ?`;
       parametros.push(noControl_busqueda);
     }
 

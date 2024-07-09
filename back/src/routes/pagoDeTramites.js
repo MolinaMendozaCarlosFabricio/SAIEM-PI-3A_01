@@ -15,4 +15,6 @@ router.put('/changeArrears/:id',tramitesController.change4Tramites);
 router.post('/search',tramitesController.buscarORfiltrarTramites);
 //faltaria filtrar, buscar y poner como "pagado"
 //change para 2 y 4
+
+router.post('/optionsAlumnos', tramitesController.printOptionsAlumnos);
 module.exports = router;
