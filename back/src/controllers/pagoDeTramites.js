@@ -168,7 +168,7 @@ const db = mysql.createConnection({
       parametros.push(apellido_m_busqueda+'%');
     }
     if(noControl_busqueda){
-      consulta += ` AND Alumnos.noCOntrol LIKE ?`;
+      consulta += ` AND Alumnos.noControl LIKE ?`;
       parametros.push(noControl_busqueda + '%');
     }
 
