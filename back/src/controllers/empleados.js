@@ -32,11 +32,11 @@ const db = mysql.createConnection({
   };
   
   exports.addProfesor = [/*authenticateJWT ,*/ (req, res) => {
-    const {nombre, apellido, telefono, correo, curp, especialidad, sueldoPorHora, estado} = req.body;
+    const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_especialidad} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
-    db.query('INSERT INTO Profesor (nombre, apellido, telefono, correo, curp, especialidad, sueldoPorHora, estado) VALUES (?,?,?,?,?,?,?,?)',
-      [nombre, apellido, telefono, correo, curp, especialidad, sueldoPorHora, estado], (err, result) => {
+    db.query('INSERT INTO Profesor (nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_estatus, id_especialidad) VALUES (?,?,?,?,?,?,?,"1",?)',
+      [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_especialidad], (err, result) => {
       if (err) {
         res.status(500).send('Error al agregar el Profesor');
         return; // Stop execution if there's an error inserting
@@ -47,11 +47,11 @@ const db = mysql.createConnection({
   
   exports.updateProfesor = [/*authenticateJWT,*/(req, res) => {
     const profesorId = req.params.id;
-    const {nombre, apellido, telefono, correo, curp, especialidad, sueldoPorHora, estado} = req.body;
+    const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_estatus, id_especialidad} = req.body;
   
     db.query(
-      `UPDATE Profesor SET nombre = ?, apellido = ?, telefono = ?, correo = ?, curp = ?, especialidad = ?, sueldoPorHora = ?, estado = ? WHERE id = ?`,
-      [nombre, apellido, telefono, correo, curp, especialidad, sueldoPorHora, estado, profesorId],
+      `UPDATE Profesor SET nombre = ?, apellido_p = ?, apellido_m = ?, telefono = ?, correo = ?, curp = ?, sueldoPorHora = ?, id_estatus = ?, id_especialidad = ? WHERE id = ?`,
+      [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_estatus, id_especialidad],
       (err, result) => {
         if (err) {
           console.error('Error al actualizar el profesor:', err);
@@ -65,26 +65,39 @@ const db = mysql.createConnection({
     );
   }];
 
-  exports.addSubject = [ (req, res) => {
-    const {nombre} = req.body;
-    db.query(``
+  exports.addMaterias = [/*authenticateJWT, */(req,res) => {
+    
+    const {idMateria, idMaestro} = req.body;
+
+    db.query('INSERT INTO Teach (idMateria, idMaestro) VALUES (?,?)', 
+      [idMateria, idMaestro], (err,result) => {
+        if (err) {
+          res.status(500).send('ERROR: error al "enseñar".');
+          return;
+        }
+        res.status(201).send('Valores agregados correctamente');
+      }
     );
   }];
+
+  exports.showMaterias = [/*authenticateJWT,*/ (req, res) => {
+    const { Profesor } = req.body; 
+    
+    const query = `
+      SELECT Materias.nombre, Teach.idMaestro 
+      FROM Teach 
+      JOIN Materias ON Teach.idMateria = Materias.id 
+      WHERE Teach.idMaestro = ?
+    `;
   
-  /*
-  exports.deleteProfesor = [authenticateJWT, (req, res) => {
-    const ProfesorId = req.params.id;
-    db.query('DELETE FROM Profesor WHERE id = ?', [ProfesorId], (err, result) => {
+    db.query(query, [Profesor], (err, result) => {
       if (err) {
-        res.status(500).send('Error al eliminar el elemento');
+        res.status(500).send('Error al mostrar las materias');
         throw err;
       }
-      res.send('Profesor eliminado correctamente');
+      res.json(result);
     });
   }];
-  */
-
-
 
   exports.getAllProfesores = [authenticateJWT, (req,res) => {
     db.query('SELECT * FROM Profesor', (err, result) => {
@@ -96,12 +109,54 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.addPersonal = [authenticateJWT,(req, res) => {
-    const {nombre, apellidos, telefono, correo, curp, cargo, suedoHora, estado} = req.body;
+  exports.mostrarProfesores = [/*authenticateJWT,*/ (req, res) => {
+    const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, estatusFiltro, especialidadFiltro} = req.body;
+    let consulta = `SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, EstatusPersona.tipo_estatus, Especialidades.nombre
+      FROM Profesor
+      JOIN Turno ON Profesor.id_turno = Especialidades.id
+      JOIN EstatusPersona ON Profesor.id_estatus = EstatusPersona.id
+      WHERE 1 = 1`;
+    let parametros = [];
+  
+    if(nombre_busqueda){
+      consulta += ` AND Profesor.nombre LIKE ?`;
+      parametros.push(nombre_busqueda + '%');
+    }
+    if (apellido_p_busqueda){
+      consulta += ` AND Profesor.apellido_p LIKE ?`;
+      parametros.push(apellido_p_busqueda + '%');
+    }
+    if(apellido_m_busqueda){
+      consulta += ` AND Profesor.apellido_m LIKE ?`;
+      parametros.push(apellido_m_busqueda + '%');
+    }
+    if(especialidadFiltro){
+      consulta += ` AND Profesor.id_especialidad = ?`;
+      parametros.push(especialidadFiltro);
+    }
+    if(estatusFiltro){
+      consulta += ` AND Profesor.id_estatus = ?`;
+      parametros.push(estatusFiltro);
+  
+    }
+    
+    db.query(consulta, parametros, (err, result) => {
+        if (err){
+          res.status(500).send(`Error al buscar informacion de los Alumnos`);
+          throw err;
+        }
+        res.json(result);
+      }
+    )
+    
+  }];
+
+  exports.addPersonal = [/*authenticateJWT,*/(req, res) => {
+    const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora, id_cargo, id_area} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
-    db.query('INSERT INTO Personal (nombre, apellidos, telefono, correo, curp, cargo, suedoHora, estado) VALUES (?,?,?,?,?,?,?,?)',
-      [nombre, apellidos, telefono, correo, curp, cargo, suedoHora, estado], (err, result) => {
+    db.query('INSERT INTO Personal (nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora, id_estatus, id_cargo, id_area) VALUES (?,?,?,?,?,?,?,"1",?,?)',
+      [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora, id_cargo, id_area], (err, result) => {
       if (err) {
         res.status(500).send('Error al agregar el Personal');
         return; // Stop execution if there's an error inserting
@@ -110,13 +165,13 @@ const db = mysql.createConnection({
     });
   }];
   
-  exports.updatePersonal = [authenticateJWT,(req, res) => {
+  exports.updatePersonal = [/*authenticateJWT,*/(req, res) => {
     const personalId = req.params.id;
-    const {nombre, apellidos, telefono, correo, curp, cargo, suedoHora, estado} = req.body;
+    const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora, id_estatus, id_cargo, id_area} = req.body;
   
     db.query(
-      `UPDATE Personal SET nombre = ?, apellidos = ?, telefono = ?, correo = ?, curp = ?, cargo = ?, suedoHora = ?, estado = ? WHERE id = ?`,
-      [nombre, apellidos, telefono, correo, curp, cargo, suedoHora, estado,personalId],
+      `UPDATE Personal SET nombre = ?, apellido_p = ?, apellido_m = ?, telefono = ?, correo = ?, curp = ?, sueldoHora = ?, id_estatus = ?, id_cargo = ?, id_area = ? WHERE id = ?`,
+      [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora,id_estatus,id_cargo,id_area,personalId],
       (err, result) => {
         if (err) {
           console.error('Error al actualizar los datos del personal:', err);
@@ -130,9 +185,9 @@ const db = mysql.createConnection({
     );
   }];
   
-  exports.cancelPersonal = [authenticateJWT, (req, res) => {
+  exports.cancelPersonal = [/*authenticateJWT,*/ (req, res) => {
     const personalId = req.params.id;
-    db.query(`UPDATE Personal SET estado = 'Dado de baja' WHERE id = ?`, [personalId], (err, result) => {
+    db.query(`UPDATE Personal SET id_estatus = '3' WHERE id = ?`, [personalId], (err, result) => {
       if (err) {
         res.status(500).send('Error al dar de baja al personal');
         throw err;
@@ -141,7 +196,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.getAllPersonal = [authenticateJWT, (req,res) => {
+  exports.getAllPersonal = [/*authenticateJWT,*/ (req,res) => {
     db.query('SELECT * FROM Personal', (err, result) => {
       if (err) {
         res.status(500).send('Error al obtener mostrar todos el personal');

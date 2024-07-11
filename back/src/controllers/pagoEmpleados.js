@@ -31,11 +31,11 @@ const db = mysql.createConnection({
     }
   };
   
-  exports.addPagoProfesor = [authenticateJWT,(req, res) => {
+  exports.addPagoProfesor = [/*authenticateJWT,*/(req, res) => {
     const {horasTrabajadas, totalPago, fechaPago, idProfesor} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
-    db.query(`INSERT INTO PagoEmpleados (horasTrabajadas, totalPago, fechaPago, estado, idProfesor) VALUES (?,?,?,'Sin pagar',?);`,
+    db.query(`INSERT INTO PagoEmpleados (horasTrabajadas, totalPago, fechaPago, id_estatus, idProfesor) VALUES (?,?,?,'1',?);`,
       [horasTrabajadas, totalPago, fechaPago, idProfesor], (err, result) => {
       if (err) {
         res.status(500).send('Error al agregar el Pago del profesor');
@@ -45,21 +45,21 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.addPagoPersonal = [authenticateJWT,(req, res) => {
+  exports.addPagoPersonal = [/*authenticateJWT,*/(req, res) => {
     const {horasTrabajadas, totalPago,fechaPago,idPersonal} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
-    db.query(`INSERT INTO PagoEmpleados (horasTrabajadas, totalPago,fechaPago, estado, idPersonal) VALUES (?,?,?,'Sin pagar',?)`,
+    db.query(`INSERT INTO PagoEmpleados (horasTrabajadas, totalPago,fechaPago, id_estatus, idPersonal) VALUES (?,?,?,'1',?)`,
       [horasTrabajadas,totalPago,fechaPago,idPersonal], (err, result) => {
       if (err) {
-        res.status(500).send('Error al agregar el Pago del profesor');
+        res.status(500).send('Error al agregar el Pago del personal');
         return; // Stop execution if there's an error inserting
       }
-      res.status(201).send('Pago del profesor agregado correctamente');
+      res.status(201).send('Pago del personal agregado correctamente');
     });
   }];
 
-  exports.getAllPagoE = [authenticateJWT, (req,res) => {
+  exports.getAllPagoE = [/*authenticateJWT,*/ (req,res) => {
     db.query('SELECT * FROM PagoEmpleados', (err, result) => {
       if (err) {
         res.status(500).send('Error al mostrar todos los pagos de los empleados realizados');
@@ -67,4 +67,86 @@ const db = mysql.createConnection({
       }
       res.json(result);
     });
+  }];
+
+  exports.searchPersonal = [/*authenticateJWT,*/ (req, res) => {
+    const {nombreB, apellido_pB,apellido_mB, fechaPagoB, estatusF} = req.body;
+    let consulta = `SELECT PagoEmpleados.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m, Personal.correo, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
+      FROM PagoEmpleados
+      JOIN EstatusPago ON PagoEmpleados.id_estatus = EstatusPago.id
+      JOIN Personal ON PagoEmpleados.idPersonal = Personal.id
+      WHERE 1 = 1`;
+    let parametros = [];
+  
+    if(nombreB){
+      consulta += ` AND Personal.nombre LIKE ?`;
+      parametros.push(nombreB+'%');
+    }
+    if(apellido_pB){
+      consulta += ` AND Personal.apellido_p LIKE ?`;
+      parametros.push(apellido_pB+'%');
+    }
+    if(apellido_mB){
+      consulta += ` AND Personal.apellido_m LIKE ?`;
+      parametros.push(apellido_mB+'%');
+    }
+    if (fechaPagoB){
+      consulta += ` AND PagoEmpleados.fechaPago LIKE ?`;
+      parametros.push(fechaPagoB+'%');
+    }
+    if (estatusF) {
+      consulta += ' AND PagoEmpleados.id_estatus LIKE ?';
+      parametros.push(estatusF+'%');
+    }
+    
+    db.query(consulta, parametros, (err, result) => {
+        if (err){
+          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          throw err;
+        }
+        res.json(result);
+      }
+    )
+    
+  }];
+
+  exports.searchProfesor = [/*authenticateJWT,*/ (req, res) => {
+    const {nombreB, apellido_pB, apellido_mB, fechaPagoB, estatusF} = req.body;
+    let consulta = `SELECT PagoEmpleados.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, Profesor.correo, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
+      FROM PagoEmpleados
+      JOIN EstatusPago ON PagoEmpleados.id_estatus = EstatusPago.id
+      JOIN Profesor ON PagoEmpleados.idProfesor = Profesor.id
+      WHERE 1 = 1`;
+    let parametros = [];
+  
+    if(nombreB){
+      consulta += ` AND Profesor.nombre LIKE ?`;
+      parametros.push(nombreB+'%');
+    }
+    if(apellido_pB){
+      consulta += ` AND Profesor.apellido_p LIKE ?`;
+      parametros.push(apellido_pB+'%');
+    }
+    if(apellido_mB){
+      consulta += ` AND Profesor.apellido_m LIKE ?`;
+      parametros.push(apellido_mB+'%');
+    }
+    if (fechaPagoB){
+      consulta += ` AND PagoEmpleados.fechaPago LIKE ?`;
+      parametros.push(fechaPagoB+'%');
+    }
+    if (estatusF) {
+      consulta += ' AND PagoEmpleados.id_estatus LIKE ?';
+      parametros.push(estatusF+'%');
+    }
+    
+    db.query(consulta, parametros, (err, result) => {
+        if (err){
+          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          throw err;
+        }
+        res.json(result);
+      }
+    )
+    
   }];
