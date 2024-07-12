@@ -150,3 +150,42 @@ const db = mysql.createConnection({
     )
     
   }];
+
+  exports.pagoPagado = [/*authenticateJWT,*/ (req,res) => {
+    const tramiteId = req.params.id;
+    const updateStatus= req.body.id_estatus;
+
+    db.query('UPDATE PagoEmpleados SET id_estatus = 3 WHERE id = ?',[tramiteId,updateStatus], (err,result) => {
+      if (err) {
+        console.error('ERROR en cambiar a pagado');
+        return;
+      }
+      res.send('Actualizado a "pagado" correctamente');
+    })
+  }];
+
+  exports.pagoProximo = [/*authenticateJWT,*/ (req,res) => {
+    const tramiteIdN = req.params.id;
+    const updateNext = req.body.id_estatus;
+
+    db.query('UPDATE PagoEmpleados SET id_estatus = 2 WHERE id = ?',[tramiteIdN,updateNext], (err,result) => {
+      if (err) {
+        console.error('ERROR en cambiar a Próximo a pagar');
+        return;
+      }
+      res.send('Actualizado a "proximo" correctamente');
+    })
+  }];
+
+  exports.pagoAtrasado = [/*authenticateJWT,*/ (req,res) => {
+    const tramiteIdA = req.params.id;
+    const updateAtras = req.body;
+
+    db.query('UPDATE PagoEmpleados SET id_estatus = 4 WHERE id = ?',[tramiteIdA,updateAtras], (err,result) => {
+      if (err) {
+        console.error('ERROR en cambiar a atrasado');
+        return;
+      }
+      res.send('Actualizado a "atrasado" correctamente');
+    })
+  }];

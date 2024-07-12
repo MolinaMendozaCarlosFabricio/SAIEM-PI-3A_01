@@ -9,7 +9,7 @@ router.get('/viewPersonal',empleadosControllers.getAllPersonal); //sirve
 router.post('/addPersonal', empleadosControllers.addPersonal); //sirve
 router.put('/updatePersonal/:id', empleadosControllers.updatePersonal); //sirve
 router.put('/cancelPersonal/:id', empleadosControllers.cancelPersonal); //sirve
-
+router.post('/searchPer', empleadosControllers.mostrarPersonal);
 /*router.post('/addC', empleadosControllers.addC);
 router.post('/addA', empleadosControllers.addA);*/ 
 
@@ -17,7 +17,7 @@ router.post('/addA', empleadosControllers.addA);*/
 router.get('/viewProfesor',empleadosControllers.getAllProfesores); //FUNCIONAL
 router.post('/addProfesor', empleadosControllers.addProfesor); //FUNCIONAL
 router.put('/updateProfesor/:id', empleadosControllers.updateProfesor); //FUNCIONAL
-router.post('/searchP', empleadosControllers.mostrarProfesores);
+router.post('/searchPro', empleadosControllers.mostrarProfesores);
 
 router.post('/materias', empleadosControllers.addMaterias); //testing //CHECA COMO FUNCIONA ESTO
 router.get('/showMat', empleadosControllers.showMaterias);

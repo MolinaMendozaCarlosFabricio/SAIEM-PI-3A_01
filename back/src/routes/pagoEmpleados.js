@@ -9,4 +9,9 @@ router.post('/pagoPer', pagoEControllers.addPagoPersonal); //FUNCIONAL
 
 router.post('/searchP', pagoEControllers.searchPersonal);
 router.post('/searchPro', pagoEControllers.searchProfesor);
+
+router.put('/pagado/:id', pagoEControllers.pagoPagado);
+router.put('/proximo/:id', pagoEControllers.pagoProximo);
+router.put('/atrasado/:id', pagoEControllers.pagoAtrasado);
+
 module.exports = router;

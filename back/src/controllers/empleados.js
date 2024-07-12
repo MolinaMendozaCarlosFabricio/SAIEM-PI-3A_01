@@ -111,9 +111,9 @@ const db = mysql.createConnection({
 
   exports.mostrarProfesores = [/*authenticateJWT,*/ (req, res) => {
     const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, estatusFiltro, especialidadFiltro} = req.body;
-    let consulta = `SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, EstatusPersona.tipo_estatus, Especialidades.nombre
+    let consulta = `SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, EstatusPersona.tipo_estatus, Especialidades.nombre_especialidad
       FROM Profesor
-      JOIN Turno ON Profesor.id_turno = Especialidades.id
+      JOIN Especialidades ON Profesor.id_especialidad = Especialidades.id
       JOIN EstatusPersona ON Profesor.id_estatus = EstatusPersona.id
       WHERE 1 = 1`;
     let parametros = [];
@@ -167,7 +167,7 @@ const db = mysql.createConnection({
   
   exports.updatePersonal = [/*authenticateJWT,*/(req, res) => {
     const personalId = req.params.id;
-    const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora, id_estatus, id_cargo, id_area} = req.body;
+    const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora,id_estatus,id_cargo,id_area} = req.body;
   
     db.query(
       `UPDATE Personal SET nombre = ?, apellido_p = ?, apellido_m = ?, telefono = ?, correo = ?, curp = ?, sueldoHora = ?, id_estatus = ?, id_cargo = ?, id_area = ? WHERE id = ?`,
@@ -204,4 +204,51 @@ const db = mysql.createConnection({
       }
       res.json(result);
     });
+  }];
+
+  exports.mostrarPersonal = [/*authenticateJWT,*/ (req, res) => {
+    const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, estatusFiltro, cargoFiltro, areaFiltro} = req.body;
+    let consulta = `SELECT Personal.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m, EstatusPersona.tipo_estatus, Areas.nombre_area, Cargos.nombre_cargo
+      FROM Personal
+      JOIN Areas ON Personal.id_area = Areas.id
+      JOIN Cargos ON Personal.id_cargo = Cargos.id
+      JOIN EstatusPersona ON Personal.id_estatus = EstatusPersona.id
+      WHERE 1 = 1`;
+    let parametros = [];
+  
+    if(nombre_busqueda){
+      consulta += ` AND Personal.nombre LIKE ?`;
+      parametros.push(nombre_busqueda + '%');
+    }
+    if (apellido_p_busqueda){
+      consulta += ` AND Personal.apellido_p LIKE ?`;
+      parametros.push(apellido_p_busqueda + '%');
+    }
+    if(apellido_m_busqueda){
+      consulta += ` AND Personal.apellido_m LIKE ?`;
+      parametros.push(apellido_m_busqueda + '%');
+    }
+    if(cargoFiltro){
+      consulta += ` AND Personal.id_cargo = ?`;
+      parametros.push(cargoFiltro);
+    }
+    if(areaFiltro){
+      consulta += ` AND Personal.id_area = ?`
+      parametros.push(areaFiltro);
+    }
+    if(estatusFiltro){
+      consulta += ` AND Personal.id_estatus = ?`;
+      parametros.push(estatusFiltro);
+  
+    }
+    
+    db.query(consulta, parametros, (err, result) => {
+        if (err){
+          res.status(500).send(`Error al buscar informacion del personal`);
+          throw err;
+        }
+        res.json(result);
+      }
+    )
+    
   }];
