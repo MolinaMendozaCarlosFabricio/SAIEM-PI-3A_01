@@ -159,9 +159,9 @@ const db = mysql.createConnection({
       [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora, id_cargo, id_area], (err, result) => {
       if (err) {
         res.status(500).send('Error al agregar el Personal');
-        return; // Stop execution if there's an error inserting
+        return res.status(500).json({ error : "Error al registrar el personal" }); // Stop execution if there's an error inserting
       }
-      res.status(201).send('Personal agregado correctamente');
+      res.status(201).json({ message : 'Personal agregado correctamente'});
     });
   }];
   

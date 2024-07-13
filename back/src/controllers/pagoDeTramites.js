@@ -73,9 +73,9 @@ const db = mysql.createConnection({
     db.query('UPDATE PagoTramites SET id_estatus = 2 WHERE id = ?',[tramiteIdN], (err,result) => {
       if (err) {
         console.error('ERROR en cambiar a Próximo a pagar');
-        return;
+        return res.status(500).json({ error: "Error al cambiar a proximo a pagar"});
       }
-      res.send('Actualizado a "proximo" correctamente');
+      res.json({ message: 'Actualizado a "proximo" correctamente'});
     })
   }];
 
@@ -85,9 +85,9 @@ const db = mysql.createConnection({
     db.query('UPDATE PagoTramites SET id_estatus = 4 WHERE id = ?',[tramiteIdA], (err,result) => {
       if (err) {
         console.error('ERROR en cambiar a atrasado');
-        return;
+        return res.status(500).json({ error: "Error al cambiar a atrasado"});
       }
-      res.send('Actualizado a "atrasado" correctamente');
+      res.json({ message: 'Actualizado a "atrasado" correctamente'});
     })
   }];
 
