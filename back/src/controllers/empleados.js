@@ -39,9 +39,9 @@ const db = mysql.createConnection({
       [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_especialidad], (err, result) => {
       if (err) {
         res.status(500).send('Error al agregar el Profesor');
-        return; // Stop execution if there's an error inserting
+        return res.status(500).json( { error : "Error al agregar el profesor" } ); // Stop execution if there's an error inserting
       }
-      res.status(201).send('Profesor agregado correctamente');
+      res.status(201).json({ message: 'Profesor agregado correctamente' });
     });
   }];
   
@@ -81,16 +81,15 @@ const db = mysql.createConnection({
   }];
 
   exports.showMaterias = [/*authenticateJWT,*/ (req, res) => {
-    const { Profesor } = req.body; 
+    const idProfesor = req.params.id; 
     
     const query = `
-      SELECT Materias.nombre, Teach.idMaestro 
+      SELECT Materias.nombre
       FROM Teach 
       JOIN Materias ON Teach.idMateria = Materias.id 
-      WHERE Teach.idMaestro = ?
-    `;
+      WHERE Teach.idMaestro = ?`;
   
-    db.query(query, [Profesor], (err, result) => {
+    db.query(query, [idProfesor], (err, result) => {
       if (err) {
         res.status(500).send('Error al mostrar las materias');
         throw err;
@@ -149,6 +148,21 @@ const db = mysql.createConnection({
       }
     )
     
+  }];
+
+  exports.mostrarDatosEspecificosDelProfesor = [(req, res) => {
+    const idProfesor = req.params.id;
+    db.query(`SELECT profesor.nombre, profesor.apellido_p, profesor.apellido_m, profesor.telefono, profesor.correo, profesor.curp, profesor.sueldoPorHora, estatuspersona.tipo_estatus, especialidades.nombre_especialidad
+      FROM profesor
+      JOIN estatuspersona ON estatuspersona.id = profesor.id_estatus
+      JOIN especialidades ON especialidades.id = profesor.id_especialidad
+      WHERE profesor.id = ?`, [idProfesor], (err, result) => {
+        if(err){
+          res.status(500).send(`Error al mostrar datos en especifico del maestro`);
+          throw res.status(500).json( { error : 'Error al mostrar datos en especifico del maestro' } );
+        }
+        res.json(result);
+      });
   }];
 
   exports.addPersonal = [/*authenticateJWT,*/(req, res) => {
@@ -251,4 +265,20 @@ const db = mysql.createConnection({
       }
     )
     
+  }];
+
+  exports.mostrarDatosEspecificosDelPersonal = [(req, res) => {
+    const personalId = req.params.id;
+    db.query(`SELECT personal.nombre, personal.apellido_p, personal.apellido_m, personal.telefono, personal.correo, personal.curp, personal.sueldoHora, estatuspersona.tipo_estatus, cargos.nombre_cargo, areas.nombre_area
+      FROM personal 
+      JOIN estatuspersona ON personal.id_estatus = estatuspersona.id
+      JOIN cargos ON personal.id_cargo = cargos.id
+      JOIN areas ON personal.id_area = areas.id
+      WHERE personal.id = ?`,[personalId], (err, result) => {
+        if(err){
+          res.status(500).send(`Error al mostrar datos en especifico del empleado`);
+          throw res.status(500).json( { error : 'Error al mostrar datos en especifico del empleado'} );
+        }
+        res.json(result);
+      });
   }];
