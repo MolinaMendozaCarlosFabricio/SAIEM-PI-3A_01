@@ -152,7 +152,7 @@ const db = mysql.createConnection({
 
   exports.mostrarDatosEspecificosDelProfesor = [(req, res) => {
     const idProfesor = req.params.id;
-    db.query(`SELECT profesor.nombre, profesor.apellido_p, profesor.apellido_m, profesor.telefono, profesor.correo, profesor.curp, profesor.sueldoPorHora, estatuspersona.tipo_estatus, especialidades.nombre_especialidad
+    db.query(`SELECT profesor.id, profesor.nombre, profesor.apellido_p, profesor.apellido_m, profesor.telefono, profesor.correo, profesor.curp, profesor.sueldoPorHora, estatuspersona.tipo_estatus, especialidades.nombre_especialidad
       FROM profesor
       JOIN estatuspersona ON estatuspersona.id = profesor.id_estatus
       JOIN especialidades ON especialidades.id = profesor.id_especialidad
@@ -190,11 +190,11 @@ const db = mysql.createConnection({
         if (err) {
           console.error('Error al actualizar los datos del personal:', err);
           res.status(500).send('Error al actualizar los datos del personal');
-          return;
+          return res.status(500).json({ error : "Error al actualizar los datos del personal"});
         }
   
         console.log('Resultado de la actualización:', result);
-        res.send('personal actualizado correctamente');
+        res.status(201).json({ message : "personal actualizado correctamente"});
       }
     );
   }];
@@ -269,7 +269,7 @@ const db = mysql.createConnection({
 
   exports.mostrarDatosEspecificosDelPersonal = [(req, res) => {
     const personalId = req.params.id;
-    db.query(`SELECT personal.nombre, personal.apellido_p, personal.apellido_m, personal.telefono, personal.correo, personal.curp, personal.sueldoHora, estatuspersona.tipo_estatus, cargos.nombre_cargo, areas.nombre_area
+    db.query(`SELECT personal.id, personal.nombre, personal.apellido_p, personal.apellido_m, personal.telefono, personal.correo, personal.curp, personal.sueldoHora, estatuspersona.tipo_estatus, cargos.nombre_cargo, areas.nombre_area
       FROM personal 
       JOIN estatuspersona ON personal.id_estatus = estatuspersona.id
       JOIN cargos ON personal.id_cargo = cargos.id
