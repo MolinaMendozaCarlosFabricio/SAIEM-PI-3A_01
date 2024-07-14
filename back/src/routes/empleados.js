@@ -23,6 +23,7 @@ router.get('/viewSpecificTeacher/:id', empleadosControllers.mostrarDatosEspecifi
 
 router.post('/materias', empleadosControllers.addMaterias); //testing //CHECA COMO FUNCIONA ESTO
 router.get('/showMat/:id', empleadosControllers.showMaterias);
+router.post('/deltMat', empleadosControllers.deleteMaterias);
 //router.post('/especialidad', empleadosControllers.addP);
 
 

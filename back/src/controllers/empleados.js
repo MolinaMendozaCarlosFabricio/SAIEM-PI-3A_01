@@ -72,10 +72,10 @@ const db = mysql.createConnection({
     db.query('INSERT INTO Teach (idMateria, idMaestro) VALUES (?,?)', 
       [idMateria, idMaestro], (err,result) => {
         if (err) {
-          res.status(500).send('ERROR: error al "enseñar".');
-          return;
+          res.status(500).send('Error al enlazar materia con el profesor');
+          return res.status(500).json({ error : "Error al enlazar materia con el profesor"});
         }
-        res.status(201).send('Valores agregados correctamente');
+        res.status(201).json({ message: 'Materia enlazada con el profesor'});
       }
     );
   }];
@@ -84,7 +84,7 @@ const db = mysql.createConnection({
     const idProfesor = req.params.id; 
     
     const query = `
-      SELECT Materias.nombre
+      SELECT Materias.nombre, Materias.id
       FROM Teach 
       JOIN Materias ON Teach.idMateria = Materias.id 
       WHERE Teach.idMaestro = ?`;
@@ -96,6 +96,20 @@ const db = mysql.createConnection({
       }
       res.json(result);
     });
+  }];
+
+  exports.deleteMaterias = [(req, res) => {
+    const {idProfesor, idMateria} = req.body;
+
+    db.query(`DELETE FROM teach WHERE idMaestro = ? AND idMateria = ?`, [idProfesor, idMateria],
+      (err, result) => {
+        if (err) {
+          res.status(500).send('Error al deslindar la materia del profesor');
+          return res.status(500).json({ error : "Error al deslindar la materia del profesor"});
+        }
+        res.status(201).json({ message: 'Materia deslindada del profesor'});
+      }
+    )
   }];
 
   exports.getAllProfesores = [authenticateJWT, (req,res) => {
