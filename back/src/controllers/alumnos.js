@@ -31,6 +31,20 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
+exports.comprobarNoControlAndCurp = [(req, res) => {
+  const {noControl, curp} = req.body;
+  db.query(`SELECT Alumnos.noControl, DatosAdicionalesAlumno.curp
+    FROM Alumnos
+    JOIN DatosAdicionalesAlumno ON Alumnos.id = DatosAdicionalesAlumno.id_alumnos
+    WHERE Alumnos.noControl = ? OR DatosAdicionalesAlumno.curp = ?;`, [noControl, curp], (err, result) => {
+      if (err) {
+        res.status(500).send('Error al buscar coincidencias en Alumnos');
+        return res.status(500).json({ error : "Error al buscar coincidencias en Alumnos"});
+      }
+      res.json(result);
+    })
+}];
+
 //http://localhost:3000/alumnos/addAlumno
 exports.addAlumno = [/*authenticateJWT,*/ async (req, res) => {
   const {

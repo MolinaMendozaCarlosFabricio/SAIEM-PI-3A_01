@@ -8,6 +8,8 @@ router.get('/', alumnoController.imprimirTablaAlumnos); //Este ya no se va a usa
 router.get('/:id', alumnoController.imprimirDatosAlumno); //FUNCIONA
 //http://localhost:3000/alumnos/addAlumno
 router.post('/addAlumno', alumnoController.addAlumno); //FUNCIONA
+//http://localhost:3000/alumnos/comprobarAlumnos
+router.post('/comprobarAlumnos', alumnoController.comprobarNoControlAndCurp);
 //http://localhost:3000/alumnos/searchAlumnos
 router.post('/searchAlumnos', alumnoController.mostrarAlumnos); //FUNCIONA (al fin)
 //http://localhost:3000/alumnos/update/:id
