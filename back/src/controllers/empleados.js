@@ -51,16 +51,16 @@ const db = mysql.createConnection({
   
     db.query(
       `UPDATE Profesor SET nombre = ?, apellido_p = ?, apellido_m = ?, telefono = ?, correo = ?, curp = ?, sueldoPorHora = ?, id_estatus = ?, id_especialidad = ? WHERE id = ?`,
-      [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_estatus, id_especialidad],
+      [nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_estatus, id_especialidad, profesorId],
       (err, result) => {
         if (err) {
           console.error('Error al actualizar el profesor:', err);
           res.status(500).send('Error al actualizar el profesor');
-          return;
+          return res.status(500).json({ error : "Error al actualizar el profesor"});
         }
   
         console.log('Resultado de la actualización:', result);
-        res.send('Profesor actualizado correctamente');
+        res.status(201).json({ message: 'Profesor actualizado correctamente'});
       }
     );
   }];
