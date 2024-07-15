@@ -5,7 +5,7 @@ const tramitesController = require('../controllers/pagoDeTramites');
 //PROBANDO
 router.get('/view',tramitesController.getAllTramites); //Ya no se usará
 router.post('/add', tramitesController.addTramites); //FUNCIONAL
-
+router.get('/buscarCoincidencias/:folio', tramitesController.buscarCoincidenciasDeFolios);
 
 //EN PRUEBA
 router.put('/changePaid/:id',tramitesController.changeTramites);
