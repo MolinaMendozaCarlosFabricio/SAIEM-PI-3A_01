@@ -48,7 +48,7 @@ const db = mysql.createConnection({
   exports.comprobarProfesoresExistentes = [(req, res) => {
     const {nombreComp, apellido_pComp, apellido_mComp} = req.body;
     
-    db.query(`SELECT id FROM profesor WHERE profesor.nombre = ? AND profesor.apellido_p = ? AND profesor.apellido_m = ?`,
+    db.query(`SELECT id FROM Profesor WHERE Profesor.nombre = ? AND Profesor.apellido_p = ? AND Profesor.apellido_m = ?`,
       [nombreComp, apellido_pComp, apellido_mComp], (err, result) => {
         if (err) {
           res.status(500).send('Error al buscar coincidencias');
@@ -116,7 +116,7 @@ const db = mysql.createConnection({
   exports.deleteMaterias = [(req, res) => {
     const {idProfesor, idMateria} = req.body;
 
-    db.query(`DELETE FROM teach WHERE idMaestro = ? AND idMateria = ?`, [idProfesor, idMateria],
+    db.query(`DELETE FROM Teach WHERE idMaestro = ? AND idMateria = ?`, [idProfesor, idMateria],
       (err, result) => {
         if (err) {
           res.status(500).send('Error al deslindar la materia del profesor');
@@ -181,11 +181,11 @@ const db = mysql.createConnection({
 
   exports.mostrarDatosEspecificosDelProfesor = [(req, res) => {
     const idProfesor = req.params.id;
-    db.query(`SELECT profesor.id, profesor.nombre, profesor.apellido_p, profesor.apellido_m, profesor.telefono, profesor.correo, profesor.curp, profesor.sueldoPorHora, estatuspersona.tipo_estatus, especialidades.nombre_especialidad
-      FROM profesor
-      JOIN estatuspersona ON estatuspersona.id = profesor.id_estatus
-      JOIN especialidades ON especialidades.id = profesor.id_especialidad
-      WHERE profesor.id = ?`, [idProfesor], (err, result) => {
+    db.query(`SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, Profesor.telefono, Profesor.correo, Profesor.curp, Profesor.sueldoPorHora, EstatusPersona.tipo_estatus, Especialidades.nombre_especialidad
+      FROM Profesor
+      JOIN EstatusPersona ON EstatusPersona.id = Profesor.id_estatus
+      JOIN Especialidades ON Especialidades.id = Profesor.id_especialidad
+      WHERE Profesor.id = ?`, [idProfesor], (err, result) => {
         if(err){
           res.status(500).send(`Error al mostrar datos en especifico del maestro`);
           throw res.status(500).json( { error : 'Error al mostrar datos en especifico del maestro' } );
@@ -211,7 +211,7 @@ const db = mysql.createConnection({
   exports.comprobarPersonalExistente = [(req, res) => {
     const {nombreComp, apellido_pComp, apellido_mComp} = req.body;
 
-    db.query(`SELECT personal.id FROM personal WHERE personal.nombre = ? AND personal.apellido_p = ? AND personal.apellido_m = ?`,
+    db.query(`SELECT Personal.id FROM Personal WHERE Personal.nombre = ? AND Personal.apellido_p = ? AND Personal.apellido_m = ?`,
       [nombreComp, apellido_pComp, apellido_mComp], (err, result) => {
         if (err) {
           res.status(500).send('Error al buscar coincidencias');
@@ -312,12 +312,12 @@ const db = mysql.createConnection({
 
   exports.mostrarDatosEspecificosDelPersonal = [(req, res) => {
     const personalId = req.params.id;
-    db.query(`SELECT personal.id, personal.nombre, personal.apellido_p, personal.apellido_m, personal.telefono, personal.correo, personal.curp, personal.sueldoHora, estatuspersona.tipo_estatus, cargos.nombre_cargo, areas.nombre_area
-      FROM personal 
-      JOIN estatuspersona ON personal.id_estatus = estatuspersona.id
-      JOIN cargos ON personal.id_cargo = cargos.id
-      JOIN areas ON personal.id_area = areas.id
-      WHERE personal.id = ?`,[personalId], (err, result) => {
+    db.query(`SELECT Personal.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m, Personal.telefono, Personal.correo, Personal.curp, Personal.sueldoHora, EstatusPersona.tipo_estatus, Cargos.nombre_cargo, Areas.nombre_area
+      FROM Personal 
+      JOIN EstatusPersona ON Personal.id_estatus = EstatusPersona.id
+      JOIN Cargos ON Personal.id_cargo = Cargos.id
+      JOIN Areas ON Personal.id_area = Areas.id
+      WHERE Personal.id = ?`,[personalId], (err, result) => {
         if(err){
           res.status(500).send(`Error al mostrar datos en especifico del empleado`);
           throw res.status(500).json( { error : 'Error al mostrar datos en especifico del empleado'} );
