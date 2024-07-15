@@ -11,7 +11,10 @@ require('dotenv').config();
 const app = express();
 const port = process.env.DB_PORT || 3000;
 
+//En esta variable se agregan las direcciones a las que se les permite el acceso a la API
+const permitirAcceso = ['https://saiem.integrador.xyz'];
 // Middleware para analizar los cuerpos de las solicitudes
+//app.use(cors({ origin: permitirAcceso }));
 app.use(cors());
 app.use(bodyParser.json());
 
