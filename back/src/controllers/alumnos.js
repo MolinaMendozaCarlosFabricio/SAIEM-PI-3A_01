@@ -33,7 +33,7 @@ const authenticateJWT = (req, res, next) => {
 
 exports.comprobarNoControlAndCurp = [(req, res) => {
   const {noControl, curp} = req.body;
-  db.query(`SELECT Alumnos.noControl, DatosAdicionalesAlumno.curp
+  db.query(`SELECT Alumnos.id
     FROM Alumnos
     JOIN DatosAdicionalesAlumno ON Alumnos.id = DatosAdicionalesAlumno.id_alumnos
     WHERE Alumnos.noControl = ? OR DatosAdicionalesAlumno.curp = ?;`, [noControl, curp], (err, result) => {

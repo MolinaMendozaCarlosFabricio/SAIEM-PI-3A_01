@@ -44,6 +44,21 @@ const db = mysql.createConnection({
       res.status(201).json({ message: 'Profesor agregado correctamente' });
     });
   }];
+
+  exports.comprobarProfesoresExistentes = [(req, res) => {
+    const {nombreComp, apellido_pComp, apellido_mComp} = req.body;
+    
+    db.query(`SELECT id FROM profesor WHERE profesor.nombre = ? AND profesor.apellido_p = ? AND profesor.apellido_m = ?`,
+      [nombreComp, apellido_pComp, apellido_mComp], (err, result) => {
+        if (err) {
+          res.status(500).send('Error al buscar coincidencias');
+          return res.status(500).json({ error : "Error al buscar coincidencias" }); // Stop execution if there's an error inserting
+        }
+        res.json(result);
+
+      }
+    )
+  }];
   
   exports.updateProfesor = [/*authenticateJWT,*/(req, res) => {
     const profesorId = req.params.id;
@@ -191,6 +206,20 @@ const db = mysql.createConnection({
       }
       res.status(201).json({ message : 'Personal agregado correctamente'});
     });
+  }];
+
+  exports.comprobarPersonalExistente = [(req, res) => {
+    const {nombreComp, apellido_pComp, apellido_mComp} = req.body;
+
+    db.query(`SELECT personal.id FROM personal WHERE personal.nombre = ? AND personal.apellido_p = ? AND personal.apellido_m = ?`,
+      [nombreComp, apellido_pComp, apellido_mComp], (err, result) => {
+        if (err) {
+          res.status(500).send('Error al buscar coincidencias');
+          return res.status(500).json({ error : "Error al buscar coincidencias" }); // Stop execution if there's an error inserting
+        }
+        res.json(result);
+      }
+    )
   }];
   
   exports.updatePersonal = [/*authenticateJWT,*/(req, res) => {

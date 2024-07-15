@@ -48,7 +48,7 @@ const db = mysql.createConnection({
   exports.buscarCoincidenciasDeFolios = [(req, res) => {
     const folioTramite = req.params.folio;
 
-    db.query(`SELECT folio FROM pagotramites WHERE folio = ?`, [folioTramite], (err, result) => {
+    db.query(`SELECT id FROM pagotramites WHERE folio = ?`, [folioTramite], (err, result) => {
       if (err) {
         res.status(500).json({ error : "Error al buscar coincidencias en trámites" });
         return; // Stop execution if there's an error inserting
