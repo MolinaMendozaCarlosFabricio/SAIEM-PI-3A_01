@@ -52,11 +52,51 @@ const db = mysql.createConnection({
     db.query(`INSERT INTO PagoEmpleados (horasTrabajadas, totalPago,fechaPago, id_estatus, idPersonal) VALUES (?,?,?,'1',?)`,
       [horasTrabajadas,totalPago,fechaPago,idPersonal], (err, result) => {
       if (err) {
-        res.status(500).send('Error al agregar el Pago del personal');
-        return; // Stop execution if there's an error inserting
+        res.status(500).json({ error : "Error al agregar el Pago del personal"})
+        return ; // Stop execution if there's an error inserting
       }
-      res.status(201).send('Pago del personal agregado correctamente');
+      res.status(201).json({ message : 'Pago del personal agregado correctamente'});
     });
+  }];
+
+  exports.buscarPersonalAPagar = [(req, res) => {
+    const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda} = req.body;
+    let consulta = `SELECT Personal.nombre, Personal.apellido_p, Personal.apellido_m, Personal.id FROM Personal WHERE 1 = 1`;
+    let parametros = []
+
+    if(nombre_busqueda){
+      consulta+=` AND Personal.nombre LIKE ?`;
+      parametros.push(nombre_busqueda+'%')
+    }
+    if(apellido_p_busqueda){
+      consulta+=` AND Personal.apellido_p LIKE ?`;
+      parametros.push(apellido_p_busqueda+'%')
+    }
+    if(apellido_m_busqueda){
+      consulta+=` AND Personal.apellido_m LIKE ?`;
+      parametros.push(apellido_m_busqueda+'%')
+    }
+    db.query(consulta, parametros, (err, result) => {
+      if (err){
+        res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+        throw err;
+      }
+      res.json(result);
+    })
+  }];
+
+  exports.mandarSueldoPersonal = [(req, res) => {
+    const idPersonal = req.params.id;
+
+    db.query(`SELECT Personal.sueldoHora FROM Personal WHERE Personal.id = ?`, [idPersonal],
+      (err, result) => {
+        if (err){
+          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          throw err;
+        }
+        res.json(result);
+      }
+    )
   }];
 
   exports.getAllPagoE = [/*authenticateJWT,*/ (req,res) => {
@@ -71,10 +111,11 @@ const db = mysql.createConnection({
 
   exports.searchPersonal = [/*authenticateJWT,*/ (req, res) => {
     const {nombreB, apellido_pB,apellido_mB, fechaPagoB, estatusF} = req.body;
-    let consulta = `SELECT PagoEmpleados.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m, Personal.correo, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
+    let consulta = `SELECT PagoEmpleados.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m , Cargos.nombre_cargo, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
       FROM PagoEmpleados
       JOIN EstatusPago ON PagoEmpleados.id_estatus = EstatusPago.id
       JOIN Personal ON PagoEmpleados.idPersonal = Personal.id
+      JOIN Cargos ON Personal.id_cargo = Cargos.id
       WHERE 1 = 1`;
     let parametros = [];
   
@@ -112,7 +153,7 @@ const db = mysql.createConnection({
 
   exports.searchProfesor = [/*authenticateJWT,*/ (req, res) => {
     const {nombreB, apellido_pB, apellido_mB, fechaPagoB, estatusF} = req.body;
-    let consulta = `SELECT PagoEmpleados.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, Profesor.correo, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
+    let consulta = `SELECT PagoEmpleados.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
       FROM PagoEmpleados
       JOIN EstatusPago ON PagoEmpleados.id_estatus = EstatusPago.id
       JOIN Profesor ON PagoEmpleados.idProfesor = Profesor.id
