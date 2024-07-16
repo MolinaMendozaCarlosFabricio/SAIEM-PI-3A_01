@@ -60,7 +60,7 @@ const db = mysql.createConnection({
   exports.getAllTramites = [/*authenticateJWT,*/ (req,res) => {
     db.query('SELECT * FROM PagoTramites', (err, result) => {
       if (err) {
-        res.status(500).send('Error al mostrar todos los trámites realizados');
+        res.status(500).json({ error : 'Error al mostrar todos los trámites realizados'});
         throw err;
       }
       res.json(result);
@@ -152,7 +152,7 @@ const db = mysql.createConnection({
     
     db.query(consulta, parametros, (err, result) => {
         if (err){
-          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          res.status(500).json({ error : `Error al buscar informacion de los Tramites de los alumnos`});
           throw err;
         }
         res.json(result);
@@ -186,7 +186,7 @@ const db = mysql.createConnection({
 
     db.query(consulta, parametros, (err, result) => {
       if (err){
-        res.status(500).send(`Error al imprimir las opciones de alumnos`);
+        res.status(500).json({ error : `Error al imprimir las opciones de alumnos`});
         throw err;
       }
       res.json(result);

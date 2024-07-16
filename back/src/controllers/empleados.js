@@ -106,7 +106,7 @@ const db = mysql.createConnection({
   
     db.query(query, [idProfesor], (err, result) => {
       if (err) {
-        res.status(500).send('Error al mostrar las materias');
+        res.status(500).json({ error : 'Error al mostrar las materias'});
         throw err;
       }
       res.json(result);
@@ -130,7 +130,7 @@ const db = mysql.createConnection({
   exports.getAllProfesores = [authenticateJWT, (req,res) => {
     db.query('SELECT * FROM Profesor', (err, result) => {
       if (err) {
-        res.status(500).send('Error al obtener mostrar todos los profesores');
+        res.status(500).send({ error : 'Error al obtener mostrar todos los profesores'});
         throw err;
       }
       res.json(result);
@@ -170,7 +170,7 @@ const db = mysql.createConnection({
     
     db.query(consulta, parametros, (err, result) => {
         if (err){
-          res.status(500).send(`Error al buscar informacion de los Alumnos`);
+          res.status(500).json({ error : `Error al buscar informacion de los Alumnos`});
           throw err;
         }
         res.json(result);
@@ -246,17 +246,17 @@ const db = mysql.createConnection({
     const personalId = req.params.id;
     db.query(`UPDATE Personal SET id_estatus = '3' WHERE id = ?`, [personalId], (err, result) => {
       if (err) {
-        res.status(500).send('Error al dar de baja al personal');
+        res.status(500).json({ error : 'Error al dar de baja al personal'});
         throw err;
       }
-      res.send('Personal dado de baja');
+      res.status(201).json({ message : 'Personal dado de baja'});
     });
   }];
 
   exports.getAllPersonal = [/*authenticateJWT,*/ (req,res) => {
     db.query('SELECT * FROM Personal', (err, result) => {
       if (err) {
-        res.status(500).send('Error al obtener mostrar todos el personal');
+        res.status(500).json({ error : 'Error al obtener mostrar todos el personal'});
         throw err;
       }
       res.json(result);
@@ -301,7 +301,7 @@ const db = mysql.createConnection({
     
     db.query(consulta, parametros, (err, result) => {
         if (err){
-          res.status(500).send(`Error al buscar informacion del personal`);
+          res.status(500).json({ error : `Error al buscar informacion del personal`});
           throw err;
         }
         res.json(result);

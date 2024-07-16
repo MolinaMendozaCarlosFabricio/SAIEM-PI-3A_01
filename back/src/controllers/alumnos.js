@@ -121,7 +121,7 @@ exports.imprimirTablaAlumnos = [/*authenticateJWT,*/ (req, res) => {
     JOIN EstatusPersona ON Alumnos.id_estatus = EstatusPersona.id`, 
     (err, result) => {
     if (err){
-      res.status(500).send('Error al obtener la informacion de los Alumnos');
+      res.status(500).json({ error : 'Error al obtener la informacion de los Alumnos'});
       throw err;
     }
     res.json(result);
@@ -135,7 +135,7 @@ exports.imprimirDatosAlumno = [/*authenticateJWT,*/ (req, res) => {
     FROM Alumnos, Turno, EstatusPersona, DatosAdicionalesAlumno, DatosExamenPreUni WHERE Alumnos.id_turno = Turno.id and Alumnos.id_estatus = EstatusPersona.id and Alumnos.id = DatosAdicionalesAlumno.id_alumnos and Alumnos.id = DatosExamenPreUni.id_alumnado and Alumnos.id = ?;`,
     [idALumno], (err, result) => {
       if (err){
-        res.status(500).send(`Error al cargar la información del alumno`);
+        res.status(500).json({ error : `Error al cargar la información del alumno`});
         throw err;
       }
       res.json(result);
@@ -185,7 +185,7 @@ exports.mostrarAlumnos = [/*authenticateJWT,*/ (req, res) => {
   
   db.query(consulta, parametros, (err, result) => {
       if (err){
-        res.status(500).send(`Error al buscar informacion de los Alumnos`);
+        res.status(500).json({ error : `Error al buscar informacion de los Alumnos`});
         throw err;
       }
       res.json(result);
@@ -252,10 +252,10 @@ exports.bajaAlumno = [/*authenticateJWT,*/ (req, res) => {
     (err, result) => {
       if (err) {
         return db.rollback(() => {
-          res.status(500).send('Error al dar de baja al alumno');
+          res.status(500).json({ error : 'Error al dar de baja al alumno'});
         });
       }
-      res.status(201).send('Alumno dado de baja')
+      res.status(201).json({ message : 'Alumno dado de baja'})
     }
   );
 }];

@@ -78,7 +78,7 @@ const db = mysql.createConnection({
     }
     db.query(consulta, parametros, (err, result) => {
       if (err){
-        res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+        res.status(500).json({ error : `Error al buscar personal`});
         throw err;
       }
       res.json(result);
@@ -91,7 +91,7 @@ const db = mysql.createConnection({
     db.query(`SELECT Personal.sueldoHora FROM Personal WHERE Personal.id = ?`, [idPersonal],
       (err, result) => {
         if (err){
-          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          res.status(500).json({ error : `Error al buscar el sueldo personal`});
           throw err;
         }
         res.json(result);
@@ -103,7 +103,7 @@ const db = mysql.createConnection({
     const idProfesor = req.params.id;
     db.query(`SELECT sueldoPorHora FROM Profesor WHERE id = ?`, [idProfesor], (err, result) => {
       if (err){
-        res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+        res.status(500).json({ error : `Error al buscar el sueldo del maestro`});
         throw err;
       }
       res.json(result);
@@ -113,7 +113,7 @@ const db = mysql.createConnection({
   exports.getAllPagoE = [/*authenticateJWT,*/ (req,res) => {
     db.query('SELECT * FROM PagoEmpleados', (err, result) => {
       if (err) {
-        res.status(500).send('Error al mostrar todos los pagos de los empleados realizados');
+        res.status(500).json({ error : 'Error al mostrar todos los pagos de los empleados realizados'});
         throw err;
       }
       res.json(result);
@@ -153,7 +153,7 @@ const db = mysql.createConnection({
     
     db.query(consulta, parametros, (err, result) => {
         if (err){
-          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          res.status(500).json({ error : `Error al buscar informacion de los Tramites de los alumnos`});
           throw err;
         }
         res.json(result);
@@ -194,7 +194,7 @@ const db = mysql.createConnection({
     
     db.query(consulta, parametros, (err, result) => {
         if (err){
-          res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+          res.status(500).json({ error : `Error al buscar informacion de los Tramites de los alumnos`});
           throw err;
         }
         res.json(result);
@@ -210,9 +210,10 @@ const db = mysql.createConnection({
     db.query('UPDATE PagoEmpleados SET id_estatus = 3 WHERE id = ?',[tramiteId,updateStatus], (err,result) => {
       if (err) {
         console.error('ERROR en cambiar a pagado');
+        res.status(500).json({ error : 'Error al actualizar estado'});
         return;
       }
-      res.send('Actualizado a "pagado" correctamente');
+      res.status(201).json({ message : 'Actualizado a "pagado" correctamente'});
     })
   }];
 
@@ -223,9 +224,10 @@ const db = mysql.createConnection({
     db.query('UPDATE PagoEmpleados SET id_estatus = 2 WHERE id = ?',[tramiteIdN,updateNext], (err,result) => {
       if (err) {
         console.error('ERROR en cambiar a Próximo a pagar');
+        res.status(500).json({ error : "Error al actualizar estado"})
         return;
       }
-      res.send('Actualizado a "proximo" correctamente');
+      res.status(201).json({ message : 'Actualizado a "proximo" correctamente'});
     })
   }];
 
@@ -236,9 +238,10 @@ const db = mysql.createConnection({
     db.query('UPDATE PagoEmpleados SET id_estatus = 4 WHERE id = ?',[tramiteIdA,updateAtras], (err,result) => {
       if (err) {
         console.error('ERROR en cambiar a atrasado');
+        res.status(500).json({ error : "Error al cambiar estado del pago" })
         return;
       }
-      res.send('Actualizado a "atrasado" correctamente');
+      res.status(201).json({ message: 'Actualizado a "atrasado" correctamente'});
     })
   }];
 
@@ -265,7 +268,7 @@ const db = mysql.createConnection({
 
     db.query(consulta, parametros, (err, result) => {
       if (err){
-        res.status(500).send(`Error al imprimir las opciones de alumnos`);
+        res.status(500).json({ error : `Error al imprimir las opciones de alumnos`});
         throw err;
       }
       res.json(result);
@@ -295,7 +298,7 @@ const db = mysql.createConnection({
 
     db.query(consulta, parametros, (err, result) => {
       if (err){
-        res.status(500).send(`Error al imprimir las opciones del profesor`);
+        res.status(500).json({ error : `Error al imprimir las opciones del profesor`});
         throw err;
       }
       res.json(result);
