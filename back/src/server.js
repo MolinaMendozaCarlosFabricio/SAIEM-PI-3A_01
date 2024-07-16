@@ -6,10 +6,10 @@ const alumnosRoutes = require('./routes/alumnos');
 const empleadosRoutes = require('./routes/empleados');
 const tramitesRoutes = require('./routes/pagoDeTramites');
 const pagoERoutes = require('./routes/pagoEmpleados');
-
 require('dotenv').config();
 const app = express();
 const port = process.env.DB_PORT || 3000;
+app.use(cors());
 
 //En esta variable se agregan las direcciones a las que se les permite el acceso a la API
 const permitirAcceso = ['https://saiem.integrador.xyz'];
