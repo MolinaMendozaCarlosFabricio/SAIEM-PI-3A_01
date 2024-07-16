@@ -16,4 +16,7 @@ router.put('/pagado/:id', pagoEControllers.pagoPagado);
 router.put('/proximo/:id', pagoEControllers.pagoProximo);
 router.put('/atrasado/:id', pagoEControllers.pagoAtrasado);
 
+router.post('/optionPersonal', pagoEControllers.printOptionPersonal);
+router.post('/optionProfesor', pagoEControllers.printOptionProfesor);
+
 module.exports = router;

@@ -230,3 +230,63 @@ const db = mysql.createConnection({
       res.send('Actualizado a "atrasado" correctamente');
     })
   }];
+
+
+  exports.printOptionPersonal = [(req, res) => {
+    const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda} = req.body;
+    let consulta = `SELECT Personal.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m
+      FROM Personal
+      WHERE 1 = 1`;
+    let parametros = [];
+
+    if(nombre_busqueda){
+      consulta += ` AND Personal.nombre LIKE ?`;
+      parametros.push(nombre_busqueda+'%');
+    }
+    if(apellido_p_busqueda){
+      consulta += ` AND Personal.apellido_p LIKE ?`;
+      parametros.push(apellido_p_busqueda+'%');
+    }
+    if(apellido_m_busqueda){
+      consulta += ` AND Personal.apellido_m LIKE ?`;
+      parametros.push(apellido_m_busqueda+'%');
+    }
+
+    db.query(consulta, parametros, (err, result) => {
+      if (err){
+        res.status(500).send(`Error al imprimir las opciones de alumnos`);
+        throw err;
+      }
+      res.json(result);
+    });
+  }];
+
+
+  exports.printOptionProfesor = [(req, res) => {
+    const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda} = req.body;
+    let consulta = `SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m
+      FROM Profesor
+      WHERE 1 = 1`;
+    let parametros = [];
+
+    if(nombre_busqueda){
+      consulta += ` AND Profesor.nombre LIKE ?`;
+      parametros.push(nombre_busqueda+'%');
+    }
+    if(apellido_p_busqueda){
+      consulta += ` AND Profesor.apellido_p LIKE ?`;
+      parametros.push(apellido_p_busqueda+'%');
+    }
+    if(apellido_m_busqueda){
+      consulta += ` AND Profesor.apellido_m LIKE ?`;
+      parametros.push(apellido_m_busqueda+'%');
+    }
+
+    db.query(consulta, parametros, (err, result) => {
+      if (err){
+        res.status(500).send(`Error al imprimir las opciones del profesor`);
+        throw err;
+      }
+      res.json(result);
+    });
+  }];
