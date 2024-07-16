@@ -38,10 +38,10 @@ const db = mysql.createConnection({
     db.query(`INSERT INTO PagoEmpleados (horasTrabajadas, totalPago, fechaPago, id_estatus, idProfesor) VALUES (?,?,?,'1',?);`,
       [horasTrabajadas, totalPago, fechaPago, idProfesor], (err, result) => {
       if (err) {
-        res.status(500).send('Error al agregar el Pago del profesor');
+        res.status(500).json({ error : 'Error al agregar el Pago del profesor'});
         return; // Stop execution if there's an error inserting
       }
-      res.status(201).send('Pago del profesor agregado correctamente');
+      res.status(201).json({ message : 'Pago del profesor agregado correctamente'});
     });
   }];
 
@@ -97,6 +97,17 @@ const db = mysql.createConnection({
         res.json(result);
       }
     )
+  }];
+
+  exports.mandarSueldoProfesor = [(req, res) => {
+    const idProfesor = req.params.id;
+    db.query(`SELECT sueldoPorHora FROM Profesor WHERE id = ?`, [idProfesor], (err, result) => {
+      if (err){
+        res.status(500).send(`Error al buscar informacion de los Tramites de los alumnos`);
+        throw err;
+      }
+      res.json(result);
+    })
   }];
 
   exports.getAllPagoE = [/*authenticateJWT,*/ (req,res) => {

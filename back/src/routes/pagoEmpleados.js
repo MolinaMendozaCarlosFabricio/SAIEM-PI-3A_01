@@ -8,6 +8,7 @@ router.post('/pagoPro', pagoEControllers.addPagoProfesor); //FUNCIONAL
 router.post('/pagoPer', pagoEControllers.addPagoPersonal); //FUNCIONAL
 router.post('/buscarPers', pagoEControllers.buscarPersonalAPagar);
 router.get('/calcularMontoPer/:id', pagoEControllers.mandarSueldoPersonal);
+router.get('/calcularMontoPro/:id', pagoEControllers.mandarSueldoProfesor);
 
 router.post('/searchP', pagoEControllers.searchPersonal);
 router.post('/searchPro', pagoEControllers.searchProfesor);
