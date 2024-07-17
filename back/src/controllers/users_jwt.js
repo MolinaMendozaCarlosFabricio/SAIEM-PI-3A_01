@@ -19,17 +19,17 @@ exports.login = async (req, res) => {
   const { nombre, password } = req.body;
   db.query('SELECT * FROM Usuarios WHERE nombre = ?', [nombre], async (err, result) => {
     if (err) {
-      res.status(500).send('Error en el servidor');
+      res.status(500).json({ error : 'Error en el servidor'});
       throw err;
     }
     if (result.length === 0) {
-      return res.status(401).send('Sin coincidencias');
+      return res.status(401).json({ error : 'Sin coincidencias'});
     }
     const user = result[0];
     // Verificar contraseña (con bcrypt)
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return res.status(401).send('Credenciales inválidas');
+      return res.status(401).json({ error : 'Credenciales inválidas'});
     }
     // Generar JWT
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '3h' });
@@ -55,14 +55,20 @@ const authenticateJWT = (req, res, next) => {
 // Rutas protegidas con autenticación JWT
 //http://localhost:3000/usersJWT/
 exports.getAllUsers = [/*authenticateJWT,*/ (req, res) => {
-  db.query('SELECT * FROM Usuarios', (err, result) => {
+  db.query('SELECT Usuarios.id, Usuarios.nombre_usuario, Usuarios.tipo, Personal.nombre, Personal.apellido_p, Personal.apellido_m FROM Usuarios JOIN Personal ON Personal.id = Usuarios.id_personal', 
+    (err, result) => {
     if (err) {
-      res.status(500).send('Error al obtener los usuarios');
+      res.status(500).json({ error : 'Error al obtener los usuarios'});
       throw err;
     }
     res.json(result);
   });
 }];
+
+exports.printAnUser = [(req, res) => {
+
+}]
+
 //http://localhost:3000/usersJWT/add
 exports.addUser = [ (req, res) => {
   let {nombre, password, tipo, idpersonal} = req.body;
@@ -70,27 +76,41 @@ exports.addUser = [ (req, res) => {
 
   bcrypt.hash(password, 10, (err, hash) => { // 10 es el número de rondas de hashing
     if (err) {
-      res.status(500).send('Error al hashear la contraseña');
+      res.status(500).json({ error : 'Error al hashear la contraseña'});
       throw err;
     }
     password = hash;
 
-    db.query('INSERT INTO Usuarios (nombre, password, tipo, id_personal) VALUES (?, ?, ?, ?)', 
+    db.query('INSERT INTO Usuarios (nombre_usuario, password, tipo, id_personal) VALUES (?, ?, ?, ?)', 
                  [nombre, hash, tipo, idpersonal], (err, result) => {
             if (err) {
                 console.error('Error al agregar el usuario:', err);
-                return res.status(500).send('Error al agregar el usuario');
+                return res.status(500).json({ error : 'Error al agregar el usuario'});
             }
-            res.status(201).send('Usuario agregado correctamente');
+            res.status(201).json({ message : 'Usuario agregado correctamente'});
     });
   });
 }];
 
+//No usar este, en vez, usar http://localhost:3000/PagoEmp/buscarPers
 exports.selectionEmploye = [ (req, res) => {
-  db.query(`SELECT nombre, apellidos, id FROM Personal;`,
+  db.query(`SELECT nombre, apellido_p, apellido_m, id FROM Personal;`,
     (err, result) => {
       if (err) {
-        res.status(500).send('Error al obtener los usuarios');
+        res.status(500).json({ error : 'Error al obtener los usuarios'});
+        throw err;
+      }
+      res.json(result);
+    });
+}];
+
+exports.comprobarSiExisteUnUsuario = [(req, res) => {
+  const {idPersonalAOcupar, idNombreAComprobar} = req.body;
+
+  db.query(`SELECT id FROM Usuarios WHERE nombre_usuario = ? OR id_personal = ?`, 
+    [idNombreAComprobar, idPersonalAOcupar], (err, result) => {
+      if (err) {
+        res.status(500).json({error : "Error al buscar coincidencias"})
         throw err;
       }
       res.json(result);
@@ -106,7 +126,7 @@ exports.updateUser = [/*authenticateJWT,*/ (req, res) => {
 
   bcrypt.hash(updatePwd, 10, (err, hash) =>{
     if (err) {
-      res.status(500).send('Error al hashear la contraseña');
+      res.status(500).json({ error : 'Error al hashear la contraseña' });
       throw err;
     }
     updatePwd = hash;
@@ -114,21 +134,21 @@ exports.updateUser = [/*authenticateJWT,*/ (req, res) => {
     console.log(`Actualizando usuario con ID: ${userId}`);
     console.log(`Nuevo nombre de usuario: ${updatedUserName}`);
 
-    db.query('UPDATE Usuarios SET nombre = ?, password = ?, tipo = ? WHERE id = ?', [updatedUserName, updatePwd, updateTipo, userId], (err, result) => {
+    db.query('UPDATE Usuarios SET nombre_usuario = ?, password = ?, tipo = ? WHERE id = ?', [updatedUserName, updatePwd, updateTipo, userId], (err, result) => {
       if (err) {
         console.error('Error al actualizar el nombre de usuario:', err);
-        res.status(500).send('Error al actualizar el nombre de usuario');
+        res.status(500).json({ error : 'Error al actualizar el nombre de usuario'});
         return;
       }
 
       console.log('Resultado de la actualización:', result);
       
       if (result.affectedRows === 0) {
-        res.status(404).send('Usuario no encontrado');
+        res.status(404).json({ error : 'Usuario no encontrado'});
         return;
       }
 
-      res.send('Datos del usuario actualizados correctamente');
+      res.status(201).json({ message : 'Datos del usuario actualizados correctamente'});
     });
   });
 }];
@@ -138,9 +158,9 @@ exports.deleteUser = [/*authenticateJWT,*/ (req, res) => {
   const userId = req.params.id;
   db.query('DELETE FROM Usuarios WHERE id = ?', [userId], (err, result) => {
     if (err) {
-      res.status(500).send('Error al eliminar el usuario');
+      res.status(500).json({ error : 'Error al eliminar el usuario'});
       throw err;
     }
-    res.send('Usuario eliminado correctamente');
+    res.status(201).json({ message : 'Usuario eliminado correctamente'});
   });
 }];

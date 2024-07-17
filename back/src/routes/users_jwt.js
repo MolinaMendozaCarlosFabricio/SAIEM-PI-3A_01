@@ -9,6 +9,8 @@ router.get('/', usersJWTController.getAllUsers);
 router.get('/login', usersJWTController.login);
 //http://localhost:3000/usersJWT/add
 router.post('/add', usersJWTController.addUser);
+//http://localhost:3000/usersJWT/compUser
+router.post('/compUser', usersJWTController.comprobarSiExisteUnUsuario);
 //http://localhost:3000/usersJWT/getEmployes
 router.get('/getEmployes', usersJWTController.selectionEmploye);
 //http://localhost:3000/usersJWT/update:id
