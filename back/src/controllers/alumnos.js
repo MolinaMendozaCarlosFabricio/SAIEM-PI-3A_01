@@ -21,13 +21,13 @@ const authenticateJWT = (req, res, next) => {
     const token = authHeader.split(' ')[1];
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) {
-        return res.sendStatus(403); // Prohibido (token inválido)
+        return res.status(403).json({ error: 'Token no válido, expirado'}); // Prohibido (token inválido)
       }
       req.user = user;
       next();
     });
   } else {
-    res.sendStatus(401); // No autorizado (sin token)
+    res.status(401).json({ error: "Sin token" }); // No autorizado (sin token)
   }
 };
 
