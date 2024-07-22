@@ -31,7 +31,7 @@ const db = mysql.createConnection({
     }
   };
   
-  exports.addPagoProfesor = [/*authenticateJWT,*/(req, res) => {
+  exports.addPagoProfesor = [authenticateJWT, (req, res) => {
     const {horasTrabajadas, totalPago, fechaPago, idProfesor} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
@@ -45,7 +45,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.addPagoPersonal = [/*authenticateJWT,*/(req, res) => {
+  exports.addPagoPersonal = [authenticateJWT, (req, res) => {
     const {horasTrabajadas, totalPago,fechaPago,idPersonal} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
@@ -59,7 +59,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.buscarPersonalAPagar = [(req, res) => {
+  exports.buscarPersonalAPagar = [authenticateJWT, (req, res) => {
     const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda} = req.body;
     let consulta = `SELECT Personal.nombre, Personal.apellido_p, Personal.apellido_m, Personal.id FROM Personal WHERE 1 = 1`;
     let parametros = []
@@ -85,7 +85,7 @@ const db = mysql.createConnection({
     })
   }];
 
-  exports.mandarSueldoPersonal = [(req, res) => {
+  exports.mandarSueldoPersonal = [authenticateJWT, (req, res) => {
     const idPersonal = req.params.id;
 
     db.query(`SELECT Personal.sueldoHora FROM Personal WHERE Personal.id = ?`, [idPersonal],
@@ -99,7 +99,7 @@ const db = mysql.createConnection({
     )
   }];
 
-  exports.mandarSueldoProfesor = [(req, res) => {
+  exports.mandarSueldoProfesor = [authenticateJWT, (req, res) => {
     const idProfesor = req.params.id;
     db.query(`SELECT sueldoPorHora FROM Profesor WHERE id = ?`, [idProfesor], (err, result) => {
       if (err){
@@ -110,7 +110,7 @@ const db = mysql.createConnection({
     })
   }];
 
-  exports.getAllPagoE = [/*authenticateJWT,*/ (req,res) => {
+  exports.getAllPagoE = [authenticateJWT, (req,res) => {
     db.query('SELECT * FROM PagoEmpleados', (err, result) => {
       if (err) {
         res.status(500).json({ error : 'Error al mostrar todos los pagos de los empleados realizados'});
@@ -120,7 +120,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.searchPersonal = [/*authenticateJWT,*/ (req, res) => {
+  exports.searchPersonal = [authenticateJWT, (req, res) => {
     const {nombreB, apellido_pB,apellido_mB, fechaPagoB, estatusF} = req.body;
     let consulta = `SELECT PagoEmpleados.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m , Cargos.nombre_cargo, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
       FROM PagoEmpleados
@@ -162,7 +162,7 @@ const db = mysql.createConnection({
     
   }];
 
-  exports.searchProfesor = [/*authenticateJWT,*/ (req, res) => {
+  exports.searchProfesor = [authenticateJWT, (req, res) => {
     const {nombreB, apellido_pB, apellido_mB, fechaPagoB, estatusF} = req.body;
     let consulta = `SELECT PagoEmpleados.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, PagoEmpleados.horasTrabajadas, PagoEmpleados.totalPago, PagoEmpleados.fechaPago, EstatusPago.tipo_estatus 
       FROM PagoEmpleados
@@ -203,7 +203,7 @@ const db = mysql.createConnection({
     
   }];
 
-  exports.pagoPagado = [/*authenticateJWT,*/ (req,res) => {
+  exports.pagoPagado = [authenticateJWT, (req,res) => {
     const tramiteId = req.params.id;
     const updateStatus= req.body.id_estatus;
 
@@ -217,7 +217,7 @@ const db = mysql.createConnection({
     })
   }];
 
-  exports.pagoProximo = [/*authenticateJWT,*/ (req,res) => {
+  exports.pagoProximo = [authenticateJWT, (req,res) => {
     const tramiteIdN = req.params.id;
     const updateNext = req.body.id_estatus;
 
@@ -231,7 +231,7 @@ const db = mysql.createConnection({
     })
   }];
 
-  exports.pagoAtrasado = [/*authenticateJWT,*/ (req,res) => {
+  exports.pagoAtrasado = [authenticateJWT, (req,res) => {
     const tramiteIdA = req.params.id;
     const updateAtras = req.body;
 
@@ -246,7 +246,7 @@ const db = mysql.createConnection({
   }];
 
 
-  exports.printOptionPersonal = [(req, res) => {
+  exports.printOptionPersonal = [authenticateJWT, (req, res) => {
     const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda} = req.body;
     let consulta = `SELECT Personal.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m
       FROM Personal
@@ -276,7 +276,7 @@ const db = mysql.createConnection({
   }];
 
 
-  exports.printOptionProfesor = [(req, res) => {
+  exports.printOptionProfesor = [authenticateJWT, (req, res) => {
     const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda} = req.body;
     let consulta = `SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m
       FROM Profesor

@@ -17,7 +17,7 @@ db.connect((err) => {
 //http://localhost:3000/usersJWT/login
 exports.login = async (req, res) => {
   const { nombre, password } = req.body;
-  db.query('SELECT * FROM Usuarios WHERE nombre = ?', [nombre], async (err, result) => {
+  db.query('SELECT * FROM Usuarios WHERE nombre_usuario = ?', [nombre], async (err, result) => {
     if (err) {
       res.status(500).json({ error : 'Error en el servidor'});
       throw err;
@@ -32,8 +32,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error : 'Credenciales inválidas'});
     }
     // Generar JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '3h' });
-    res.json({ token });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '5h' });
+    const idUser = user.id;
+    const tipoUser = user.tipo;
+    res.json({ token, idUser, tipoUser });
   });
 };
 // Middleware de autenticación
@@ -53,9 +55,19 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 // Rutas protegidas con autenticación JWT
+exports.verifyUser = [authenticateJWT, (req, res) => {
+  const idUser = req.params.id;
+  db.query('SELECT id FROM Usuarios WHERE Usuarios.id = ?',[idUser], (err, result) => {
+    if (err) {
+      res.status(500).json({error: 'Error al mostrar id de tu propio usuario (xd)'});
+      throw err;
+    }
+    res.status(201).json({message: 'Tu token sigue vigente'})
+  })
+}];
 //http://localhost:3000/usersJWT/
-exports.getAllUsers = [/*authenticateJWT,*/ (req, res) => {
-  db.query('SELECT Usuarios.id, Usuarios.nombre_usuario, Usuarios.tipo, Personal.nombre, Personal.apellido_p, Personal.apellido_m FROM Usuarios JOIN Personal ON Personal.id = Usuarios.id_personal', 
+exports.getAllUsers = [authenticateJWT, (req, res) => {
+  db.query('SELECT Usuarios.id, Usuarios.nombre_usuario, Usuarios.tipo, Personal.nombre, Personal.apellido_p, Personal.apellido_m FROM Usuarios JOIN Personal ON Personal.id = Usuarios.id_personal WHERE Usuarios.tipo != "master"', 
     (err, result) => {
     if (err) {
       res.status(500).json({ error : 'Error al obtener los usuarios'});
@@ -70,7 +82,7 @@ exports.printAnUser = [(req, res) => {
 }]
 
 //http://localhost:3000/usersJWT/add
-exports.addUser = [ (req, res) => {
+exports.addUser = [authenticateJWT, (req, res) => {
   let {nombre, password, tipo, idpersonal} = req.body;
   // Hashear la contraseña antes de guardarla (bcrypt)
 
@@ -93,7 +105,7 @@ exports.addUser = [ (req, res) => {
 }];
 
 //No usar este, en vez, usar http://localhost:3000/PagoEmp/buscarPers
-exports.selectionEmploye = [ (req, res) => {
+exports.selectionEmploye = [authenticateJWT, (req, res) => {
   db.query(`SELECT nombre, apellido_p, apellido_m, id FROM Personal;`,
     (err, result) => {
       if (err) {
@@ -104,7 +116,7 @@ exports.selectionEmploye = [ (req, res) => {
     });
 }];
 
-exports.comprobarSiExisteUnUsuario = [(req, res) => {
+exports.comprobarSiExisteUnUsuario = [authenticateJWT, (req, res) => {
   const {idPersonalAOcupar, idNombreAComprobar} = req.body;
 
   db.query(`SELECT id FROM Usuarios WHERE nombre_usuario = ? OR id_personal = ?`, 
@@ -118,7 +130,7 @@ exports.comprobarSiExisteUnUsuario = [(req, res) => {
 }];
 
 //http://localhost:3000/usersJWT/update
-exports.updateUser = [/*authenticateJWT,*/ (req, res) => {
+exports.updateUser = [authenticateJWT, (req, res) => {
   const userId = req.params.id;
   const updatedUserName = req.body.nombre;
   let updatePwd = req.body.password;
@@ -154,7 +166,7 @@ exports.updateUser = [/*authenticateJWT,*/ (req, res) => {
 }];
 
 //http://localhost:3000/usersJWT/delete
-exports.deleteUser = [/*authenticateJWT,*/ (req, res) => {
+exports.deleteUser = [authenticateJWT, (req, res) => {
   const userId = req.params.id;
   db.query('DELETE FROM Usuarios WHERE id = ?', [userId], (err, result) => {
     if (err) {

@@ -6,7 +6,9 @@ const usersJWTController = require('../controllers/users_jwt');
 //http://localhost:3000/usersJWT/
 router.get('/', usersJWTController.getAllUsers);
 //http://localhost:3000/usersJWT/login
-router.get('/login', usersJWTController.login);
+router.post('/login', usersJWTController.login);
+//http://localhost:3000/usersJWT/verify/:id
+router.get('/verify/:id', usersJWTController.verifyUser);
 //http://localhost:3000/usersJWT/add
 router.post('/add', usersJWTController.addUser);
 //http://localhost:3000/usersJWT/compUser

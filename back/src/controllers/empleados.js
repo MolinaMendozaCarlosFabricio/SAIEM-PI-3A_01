@@ -31,7 +31,7 @@ const db = mysql.createConnection({
     }
   };
   
-  exports.addProfesor = [/*authenticateJWT ,*/ (req, res) => {
+  exports.addProfesor = [authenticateJWT , (req, res) => {
     const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_especialidad} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
@@ -45,7 +45,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.comprobarProfesoresExistentes = [(req, res) => {
+  exports.comprobarProfesoresExistentes = [authenticateJWT, (req, res) => {
     const {nombreComp, apellido_pComp, apellido_mComp} = req.body;
     
     db.query(`SELECT id FROM Profesor WHERE Profesor.nombre = ? AND Profesor.apellido_p = ? AND Profesor.apellido_m = ?`,
@@ -60,7 +60,7 @@ const db = mysql.createConnection({
     )
   }];
   
-  exports.updateProfesor = [/*authenticateJWT,*/(req, res) => {
+  exports.updateProfesor = [authenticateJWT, (req, res) => {
     const profesorId = req.params.id;
     const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoPorHora, id_estatus, id_especialidad} = req.body;
   
@@ -80,7 +80,7 @@ const db = mysql.createConnection({
     );
   }];
 
-  exports.addMaterias = [/*authenticateJWT, */(req,res) => {
+  exports.addMaterias = [authenticateJWT, (req,res) => {
     
     const {idMateria, idMaestro} = req.body;
 
@@ -95,7 +95,7 @@ const db = mysql.createConnection({
     );
   }];
 
-  exports.showMaterias = [/*authenticateJWT,*/ (req, res) => {
+  exports.showMaterias = [authenticateJWT, (req, res) => {
     const idProfesor = req.params.id; 
     
     const query = `
@@ -113,7 +113,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.deleteMaterias = [(req, res) => {
+  exports.deleteMaterias = [authenticateJWT, (req, res) => {
     const {idProfesor, idMateria} = req.body;
 
     db.query(`DELETE FROM Teach WHERE idMaestro = ? AND idMateria = ?`, [idProfesor, idMateria],
@@ -137,7 +137,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.mostrarProfesores = [/*authenticateJWT,*/ (req, res) => {
+  exports.mostrarProfesores = [authenticateJWT, (req, res) => {
     const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, estatusFiltro, especialidadFiltro} = req.body;
     let consulta = `SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, EstatusPersona.tipo_estatus, Especialidades.nombre_especialidad
       FROM Profesor
@@ -179,7 +179,7 @@ const db = mysql.createConnection({
     
   }];
 
-  exports.mostrarDatosEspecificosDelProfesor = [(req, res) => {
+  exports.mostrarDatosEspecificosDelProfesor = [authenticateJWT, (req, res) => {
     const idProfesor = req.params.id;
     db.query(`SELECT Profesor.id, Profesor.nombre, Profesor.apellido_p, Profesor.apellido_m, Profesor.telefono, Profesor.correo, Profesor.curp, Profesor.sueldoPorHora, EstatusPersona.tipo_estatus, Especialidades.nombre_especialidad
       FROM Profesor
@@ -194,7 +194,7 @@ const db = mysql.createConnection({
       });
   }];
 
-  exports.addPersonal = [/*authenticateJWT,*/(req, res) => {
+  exports.addPersonal = [authenticateJWT, (req, res) => {
     const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora, id_cargo, id_area} = req.body;
   
     // Insertar el nuevo profesor en la base de datos 
@@ -208,7 +208,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.comprobarPersonalExistente = [(req, res) => {
+  exports.comprobarPersonalExistente = [authenticateJWT, (req, res) => {
     const {nombreComp, apellido_pComp, apellido_mComp} = req.body;
 
     db.query(`SELECT Personal.id FROM Personal WHERE Personal.nombre = ? AND Personal.apellido_p = ? AND Personal.apellido_m = ?`,
@@ -222,7 +222,7 @@ const db = mysql.createConnection({
     )
   }];
   
-  exports.updatePersonal = [/*authenticateJWT,*/(req, res) => {
+  exports.updatePersonal = [authenticateJWT, (req, res) => {
     const personalId = req.params.id;
     const {nombre, apellido_p, apellido_m, telefono, correo, curp, sueldoHora,id_estatus,id_cargo,id_area} = req.body;
   
@@ -242,7 +242,7 @@ const db = mysql.createConnection({
     );
   }];
   
-  exports.cancelPersonal = [/*authenticateJWT,*/ (req, res) => {
+  exports.cancelPersonal = [authenticateJWT, (req, res) => {
     const personalId = req.params.id;
     db.query(`UPDATE Personal SET id_estatus = '3' WHERE id = ?`, [personalId], (err, result) => {
       if (err) {
@@ -253,7 +253,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.getAllPersonal = [/*authenticateJWT,*/ (req,res) => {
+  exports.getAllPersonal = [authenticateJWT, (req,res) => {
     db.query('SELECT * FROM Personal', (err, result) => {
       if (err) {
         res.status(500).json({ error : 'Error al obtener mostrar todos el personal'});
@@ -263,7 +263,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.mostrarPersonal = [/*authenticateJWT,*/ (req, res) => {
+  exports.mostrarPersonal = [authenticateJWT, (req, res) => {
     const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, estatusFiltro, cargoFiltro, areaFiltro} = req.body;
     let consulta = `SELECT Personal.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m, EstatusPersona.tipo_estatus, Areas.nombre_area, Cargos.nombre_cargo
       FROM Personal
@@ -310,7 +310,7 @@ const db = mysql.createConnection({
     
   }];
 
-  exports.mostrarDatosEspecificosDelPersonal = [(req, res) => {
+  exports.mostrarDatosEspecificosDelPersonal = [authenticateJWT, (req, res) => {
     const personalId = req.params.id;
     db.query(`SELECT Personal.id, Personal.nombre, Personal.apellido_p, Personal.apellido_m, Personal.telefono, Personal.correo, Personal.curp, Personal.sueldoHora, EstatusPersona.tipo_estatus, Cargos.nombre_cargo, Areas.nombre_area
       FROM Personal 

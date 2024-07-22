@@ -32,7 +32,7 @@ const db = mysql.createConnection({
   };
   
   //http://localhost:3000/tramites/add
-  exports.addTramites = [/*authenticateJWT,*/ (req, res) => {
+  exports.addTramites = [authenticateJWT, (req, res) => {
     const {folio, concepto, monto, fechaDeCorte, id_alumno} = req.body;
   
     db.query(`INSERT INTO PagoTramites (folio, concepto, monto, fechaDeCorte, id_estatus, id_alumno) VALUES (?,?,?,?,1,?)`,
@@ -45,7 +45,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.buscarCoincidenciasDeFolios = [(req, res) => {
+  exports.buscarCoincidenciasDeFolios = [authenticateJWT, (req, res) => {
     const folioTramite = req.params.folio;
 
     db.query(`SELECT id FROM Pagotramites WHERE folio = ?`, [folioTramite], (err, result) => {
@@ -57,7 +57,7 @@ const db = mysql.createConnection({
     });
   }];
   
-  exports.getAllTramites = [/*authenticateJWT,*/ (req,res) => {
+  exports.getAllTramites = [authenticateJWT, (req,res) => {
     db.query('SELECT * FROM PagoTramites', (err, result) => {
       if (err) {
         res.status(500).json({ error : 'Error al mostrar todos los trámites realizados'});
@@ -67,7 +67,7 @@ const db = mysql.createConnection({
     });
   }];
 
-  exports.changeTramites = [/*authenticateJWT,*/ (req, res) => {
+  exports.changeTramites = [authenticateJWT, (req, res) => {
     const tramiteId = req.params.id;
   
     db.query('UPDATE PagoTramites SET id_estatus = 3 WHERE id = ?', [tramiteId], (err, result) => {
@@ -79,7 +79,7 @@ const db = mysql.createConnection({
     });
   }];
   
-  exports.change2Tramites = [/*authenticateJWT,*/ (req,res) => {
+  exports.change2Tramites = [authenticateJWT, (req,res) => {
     const tramiteIdN = req.params.id;
 
     db.query('UPDATE PagoTramites SET id_estatus = 2 WHERE id = ?',[tramiteIdN], (err,result) => {
@@ -91,7 +91,7 @@ const db = mysql.createConnection({
     })
   }];
 
-  exports.change4Tramites = [/*authenticateJWT,*/ (req,res) => {
+  exports.change4Tramites = [authenticateJWT, (req,res) => {
     const tramiteIdA = req.params.id;
 
     db.query('UPDATE PagoTramites SET id_estatus = 4 WHERE id = ?',[tramiteIdA], (err,result) => {
@@ -104,7 +104,7 @@ const db = mysql.createConnection({
   }];
 
   //probar los demás parametros para busqueda
-  exports.buscarORfiltrarTramites = [/*authenticateJWT,*/ (req, res) => {
+  exports.buscarORfiltrarTramites = [authenticateJWT, (req, res) => {
     const {folio_busqueda, concepto_busqueda,nombreBusqueda, apellido_p_busqueda, apellido_m_busqueda, fechaDeCorteFiltro, estatusFiltro, gradoFiltro, grupoFiltro} = req.body;
     let consulta = `SELECT PagoTramites.id, PagoTramites.folio, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, PagoTramites.concepto, PagoTramites.monto, PagoTramites.fechaDeCorte, EstatusPago.tipo_estatus 
       FROM PagoTramites
@@ -161,7 +161,7 @@ const db = mysql.createConnection({
     
   }];
 
-  exports.printOptionsAlumnos = [(req, res) => {
+  exports.printOptionsAlumnos = [authenticateJWT, (req, res) => {
     const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, noControl_busqueda} = req.body;
     let consulta = `SELECT Alumnos.id, Alumnos.noControl, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo
       FROM Alumnos WHERE 1 = 1`;

@@ -31,7 +31,7 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
-exports.comprobarNoControlAndCurp = [(req, res) => {
+exports.comprobarNoControlAndCurp = [authenticateJWT, (req, res) => {
   const {noControl, curp} = req.body;
   db.query(`SELECT Alumnos.id
     FROM Alumnos
@@ -46,7 +46,7 @@ exports.comprobarNoControlAndCurp = [(req, res) => {
 }];
 
 //http://localhost:3000/alumnos/addAlumno
-exports.addAlumno = [/*authenticateJWT,*/ async (req, res) => {
+exports.addAlumno = [authenticateJWT, async (req, res) => {
   const {
     nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado, curp, telefono, correo, 
     nombre_tutor, apellido_p_tutor, apellido_m_tutor, telefono_tutor, nivelAcademico, escuelaProcedente, 
@@ -114,7 +114,7 @@ exports.addAlumno = [/*authenticateJWT,*/ async (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/
-exports.imprimirTablaAlumnos = [/*authenticateJWT,*/ (req, res) => {
+exports.imprimirTablaAlumnos = [authenticateJWT, (req, res) => {
   db.query(`SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus 
     FROM Alumnos
     JOIN Turno ON Alumnos.id_turno = Turno.id
@@ -129,7 +129,7 @@ exports.imprimirTablaAlumnos = [/*authenticateJWT,*/ (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/:id
-exports.imprimirDatosAlumno = [/*authenticateJWT,*/ (req, res) => {
+exports.imprimirDatosAlumno = [authenticateJWT, (req, res) => {
   const idALumno = req.params.id;
   db.query(`SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus, DatosAdicionalesAlumno.curp, DatosAdicionalesAlumno.telefono, DatosAdicionalesAlumno.correo, DatosAdicionalesAlumno.nombre_tutor, DatosAdicionalesAlumno.apellidoP_tutor, DatosAdicionalesAlumno.apellidoM_tutor, DatosAdicionalesAlumno.telefono_tutor, DatosAdicionalesAlumno.nivelAcademico, DatosExamenPreUni.escuelaProcedente, DatosExamenPreUni.colegioAspirado, DatosExamenPreUni.carreraAspirada, DatosExamenPreUni.fechaInicioCurso, DatosExamenPreUni.fechaExamenDiagnostico, DatosExamenPreUni.nivelMatematico, DatosExamenPreUni.nivelAnalitico, DatosExamenPreUni.nivelLinguistico, DatosExamenPreUni.nivelComprension, DatosExamenPreUni.nivelGeneral
     FROM Alumnos, Turno, EstatusPersona, DatosAdicionalesAlumno, DatosExamenPreUni WHERE Alumnos.id_turno = Turno.id and Alumnos.id_estatus = EstatusPersona.id and Alumnos.id = DatosAdicionalesAlumno.id_alumnos and Alumnos.id = DatosExamenPreUni.id_alumnado and Alumnos.id = ?;`,
@@ -144,7 +144,7 @@ exports.imprimirDatosAlumno = [/*authenticateJWT,*/ (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/searchAlumnos
-exports.mostrarAlumnos = [/*authenticateJWT,*/ (req, res) => {
+exports.mostrarAlumnos = [authenticateJWT, (req, res) => {
   const {nombre_busqueda, apellido_p_busqueda, apellido_m_busqueda, noControlBusqueda, gradoFiltro, grupoFiltro, estatusFiltro} = req.body;
   let consulta = `SELECT Alumnos.id, Alumnos.nombre, Alumnos.apellido_p, Alumnos.apellido_m, Alumnos.grado, Alumnos.grupo, Turno.turno, Alumnos.noControl, EstatusPersona.tipo_estatus 
     FROM Alumnos
@@ -195,7 +195,7 @@ exports.mostrarAlumnos = [/*authenticateJWT,*/ (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/update/:id
-exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
+exports.editAlumno = [authenticateJWT, (req, res) => {
   const idALumno = req.params.id;
   const {
     nombre, apellido_p, apellido_m, grado, grupo, turno, noControl, estado, curp, telefono, correo, 
@@ -246,7 +246,7 @@ exports.editAlumno = [/*authenticateJWT,*/ (req, res) => {
 }];
 
 //http://localhost:3000/alumnos/downAlumno/:id
-exports.bajaAlumno = [/*authenticateJWT,*/ (req, res) => {
+exports.bajaAlumno = [authenticateJWT, (req, res) => {
   const idALumno = req.params.id;
   db.query(`UPDATE Alumnos SET id_estatus = 3 WHERE id = ?;`, [idALumno],
     (err, result) => {
