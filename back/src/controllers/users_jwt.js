@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error : 'Credenciales inválidas'});
     }
     // Generar JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '5m' });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '3h' });
     const idUser = user.id;
     const tipoUser = user.tipo;
     res.json({ token, idUser, tipoUser });
@@ -65,9 +65,10 @@ exports.verifyUser = [authenticateJWT, (req, res) => {
     res.status(201).json({message: 'Tu token sigue vigente'})
   })
 }];
+
 //http://localhost:3000/usersJWT/
 exports.getAllUsers = [authenticateJWT, (req, res) => {
-  db.query('SELECT Usuarios.id, Usuarios.nombre_usuario, Usuarios.tipo, Personal.nombre, Personal.apellido_p, Personal.apellido_m FROM Usuarios JOIN Personal ON Personal.id = Usuarios.id_personal WHERE Usuarios.tipo != "master"', 
+  db.query('SELECT Usuarios.id, Usuarios.nombre_usuario, Usuarios.tipo, Areas.nombre_area FROM Usuarios JOIN Areas ON Areas.id = Usuarios.id_area WHERE Usuarios.tipo != "master"', 
     (err, result) => {
     if (err) {
       res.status(500).json({ error : 'Error al obtener los usuarios'});
@@ -77,12 +78,8 @@ exports.getAllUsers = [authenticateJWT, (req, res) => {
   });
 }];
 
-exports.printAnUser = [(req, res) => {
-
-}]
-
 //http://localhost:3000/usersJWT/add
-exports.addUser = [authenticateJWT, (req, res) => {
+exports.addUser = [(req, res) => {
   let {nombre, password, tipo, idpersonal} = req.body;
   // Hashear la contraseña antes de guardarla (bcrypt)
 
@@ -93,7 +90,7 @@ exports.addUser = [authenticateJWT, (req, res) => {
     }
     password = hash;
 
-    db.query('INSERT INTO Usuarios (nombre_usuario, password, tipo, id_personal) VALUES (?, ?, ?, ?)', 
+    db.query('INSERT INTO Usuarios (nombre_usuario, password, tipo, id_area) VALUES (?, ?, ?, ?)', 
                  [nombre, hash, tipo, idpersonal], (err, result) => {
             if (err) {
                 console.error('Error al agregar el usuario:', err);
@@ -104,23 +101,11 @@ exports.addUser = [authenticateJWT, (req, res) => {
   });
 }];
 
-//No usar este, en vez, usar http://localhost:3000/PagoEmp/buscarPers
-exports.selectionEmploye = [authenticateJWT, (req, res) => {
-  db.query(`SELECT nombre, apellido_p, apellido_m, id FROM Personal;`,
-    (err, result) => {
-      if (err) {
-        res.status(500).json({ error : 'Error al obtener los usuarios'});
-        throw err;
-      }
-      res.json(result);
-    });
-}];
-
 exports.comprobarSiExisteUnUsuario = [authenticateJWT, (req, res) => {
-  const {idPersonalAOcupar, idNombreAComprobar} = req.body;
+  const {idNombreAComprobar} = req.body;
 
-  db.query(`SELECT id FROM Usuarios WHERE nombre_usuario = ? OR id_personal = ?`, 
-    [idNombreAComprobar, idPersonalAOcupar], (err, result) => {
+  db.query(`SELECT id FROM Usuarios WHERE nombre_usuario = ?`, 
+    [idNombreAComprobar], (err, result) => {
       if (err) {
         res.status(500).json({error : "Error al buscar coincidencias"})
         throw err;

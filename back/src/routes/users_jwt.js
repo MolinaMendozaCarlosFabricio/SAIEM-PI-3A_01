@@ -13,8 +13,6 @@ router.get('/verify/:id', usersJWTController.verifyUser);
 router.post('/add', usersJWTController.addUser);
 //http://localhost:3000/usersJWT/compUser
 router.post('/compUser', usersJWTController.comprobarSiExisteUnUsuario);
-//http://localhost:3000/usersJWT/getEmployes
-router.get('/getEmployes', usersJWTController.selectionEmploye);
 //http://localhost:3000/usersJWT/update:id
 router.put('/update/:id', usersJWTController.updateUser);
 //http://localhost:3000/usersJWT/delete:id
